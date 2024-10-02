@@ -1,5 +1,5 @@
 import { Container, DestroyOptions, EventSystem, IHitArea, Point, PointData, Rectangle, Ticker, View } from 'pixi.js';
-import { InputManager } from './InputManager';
+import { InputManager, type ICustomPointerConfig } from './InputManager';
 import { PluginManager } from './PluginManager';
 import {
     Animate, Bounce, Clamp, ClampZoom, Decelerate, Drag, Follow, IAnimateOptions,
@@ -55,7 +55,6 @@ export interface IViewportOptions
     /**
      * Whether to stop drag when the pointer is out of the viewport
      */
-
     allowPreserveDragOutside?:boolean;
 
     /**
@@ -86,6 +85,12 @@ export interface IViewportOptions
      * @default PIXI.Ticker.shared
      */
     ticker?: Ticker;
+
+    /**
+     * Give you more control over which event listeners will be added.
+     * Configure only if you fully understand "InputManager.addCustomPointerListeners".
+     */
+    customPointerConfig?: ICustomPointerConfig;
 }
 
 export interface ICompleteViewportOptions extends IViewportOptions
@@ -208,6 +213,8 @@ export class Viewport extends Container
      * @param {PIXI.EventSystem} [options.events] EventSystem available from app.events or added manually and passed here
      * location on screen
      * @param {boolean} [options.disableOnContextMenu] remove oncontextmenu=() => {} from the pixi's events.domElement
+     * @param {ICustomPointerConfig} [options.customPointerConfig] Give you more control over which event listeners will be added.
+     * Configure only if you fully understand "InputManager.addCustomPointerListeners".
      */
     constructor(options: IViewportOptions)
     {
