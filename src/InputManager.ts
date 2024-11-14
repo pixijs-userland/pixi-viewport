@@ -8,6 +8,19 @@ export interface IViewportTouch
     last: PointData | null;
 }
 
+export interface ICustomPointerConfig
+{
+    down: 'pointerdown' | 'pointerdowncapture';
+    move: 'pointermove' | 'pointermovecapture' | 'globalpointermove';
+    up: Partial<{
+        'pointerup': 'pointerup' | 'pointerupcapture',
+        'pointerupoutside': 'pointerupoutside' | 'pointerupoutsidecapture',
+        'pointertap': 'pointertap' | 'pointertapcapture',
+        'pointercancel': 'pointercancel' | 'pointercancelcapture',
+        'pointerleave': 'pointerleave' | 'pointerleavecapture'
+    }>;
+}
+
 /**
  * Handles all input for Viewport
  *
@@ -42,9 +55,26 @@ export class InputManager
         {
             this.viewport.hitArea = new Rectangle(0, 0, this.viewport.worldWidth, this.viewport.worldHeight);
         }
+        if (!this.viewport.options.customPointerConfig)
+        {
+            this.addPointerListeners();
+        }
+        else
+        {
+            this.addCustomPointerListeners(this.viewport.options.customPointerConfig);
+        }
+
+        this.wheelFunction = (e) => this.handleWheel(e);
+        this.viewport.options.events.domElement.addEventListener(
+            'wheel',
+            this.wheelFunction as any,
+            { passive: this.viewport.options.passiveWheel });
+        this.isMouseDown = false;
+    }
+
+    private addPointerListeners() {
         this.viewport.on('pointerdown', this.down, this);
         if (this.viewport.options.allowPreserveDragOutside)
-
         {
             this.viewport.on('globalpointermove', this.move, this);
         }
@@ -60,13 +90,6 @@ export class InputManager
         {
             this.viewport.on('pointerleave', this.up, this);
         }
-
-        this.wheelFunction = (e) => this.handleWheel(e);
-        this.viewport.options.events.domElement.addEventListener(
-            'wheel',
-            this.wheelFunction as any,
-            { passive: this.viewport.options.passiveWheel });
-        this.isMouseDown = false;
     }
 
     /**
@@ -288,5 +311,16 @@ export class InputManager
     count(): number
     {
         return (this.isMouseDown ? 1 : 0) + this.touches.length;
+    }
+
+    private addCustomPointerListeners(config: ICustomPointerConfig)
+    {
+        this.viewport.on(config.down, this.down, this);
+        this.viewport.on(config.move, this.move, this);
+        for (const key of Object.keys(config.up)) {
+            // just for bypassing type check
+            const event = (config.up as Record<string, string>)[key];
+            this.viewport.on(event, this.up, this);
+        }
     }
 }
