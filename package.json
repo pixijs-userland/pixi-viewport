@@ -60,7 +60,7 @@
         "chai": "4.3.4",
         "clicked": "4.0.3",
         "dom-ease": "0.9.3",
-        "electron": "20.0.2",
+        "electron": "22.3.25",
         "eslint": "8.57.1",
         "floss": "5.0.1",
         "fs-extra": "10.0.0",
