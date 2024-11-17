@@ -71,7 +71,7 @@
         "pixi.js": "8.5.2",
         "raf": "3.4.1",
         "typescript": "5.6.2",
-        "vite": "4.4.10",
+        "vite": "4.5.5",
         "vite-plugin-dts": "3.6.0",
         "yy-counter": "2.1.0",
         "yy-fps": "2.0.1",
