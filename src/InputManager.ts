@@ -231,6 +231,12 @@ export class InputManager
             return;
         }
 
+        // do not handle events coming from other elements
+        if (this.viewport.options.events?.domElement !== event.target)
+        {
+            return;
+        }
+
         // only handle wheel events where the mouse is over the viewport
         const point = this.viewport.toLocal(this.getPointerPosition(event));
 

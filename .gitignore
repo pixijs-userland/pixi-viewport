@@ -7,3 +7,5 @@ node_modules
 compile
 js
 dist
+package-lock.json
+yarn.lock
