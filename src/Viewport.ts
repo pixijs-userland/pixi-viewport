@@ -190,6 +190,8 @@ export class Viewport extends Container
     private _worldHeight?: number | null;
     private _disableOnContextMenu = (e: MouseEvent) => e.preventDefault();
 
+    public _wheelAxis?: 'all' | 'x' | 'y';
+
     /**
      * @param {IViewportOptions} ViewportOptions
      * @param {number} [options.screenWidth=window.innerWidth]

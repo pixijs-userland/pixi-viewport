@@ -110,6 +110,7 @@ export class Wheel extends Plugin
     {
         super(parent);
         this.options = Object.assign({}, DEFAULT_WHEEL_OPTIONS, options);
+        this.parent._wheelAxis = this.options.axis;
         this.keyIsPressed = false;
 
         if (this.options.keyToPress)

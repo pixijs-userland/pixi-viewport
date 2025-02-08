@@ -78,21 +78,29 @@ export class ClampZoom extends Plugin
             if (this.options.minWidth !== null && width < this.options.minWidth)
             {
                 const original = this.parent.scale.x;
+                console.log('-- minwidth', this.parent._wheelAxis);
 
                 this.parent.fitWidth(this.options.minWidth, false, false, true);
-                this.parent.scale.y *= this.parent.scale.x / original;
                 width = this.parent.worldScreenWidth;
-                height = this.parent.worldScreenHeight;
+
+                if (this.parent._wheelAxis && ['all', 'y'].includes(this.parent._wheelAxis)) {
+                    this.parent.scale.y *= this.parent.scale.x / original;
+                    height = this.parent.worldScreenHeight;
+                }
                 this.parent.emit('zoomed', { viewport: this.parent, type: 'clamp-zoom' });
             }
             if (this.options.maxWidth !== null && width > this.options.maxWidth)
             {
                 const original = this.parent.scale.x;
+                console.log('-- maxwidth', this.parent._wheelAxis);
 
                 this.parent.fitWidth(this.options.maxWidth, false, false, true);
-                this.parent.scale.y *= this.parent.scale.x / original;
                 width = this.parent.worldScreenWidth;
-                height = this.parent.worldScreenHeight;
+
+                if (this.parent._wheelAxis && ['all', 'y'].includes(this.parent._wheelAxis)) {
+                    this.parent.scale.y *= this.parent.scale.x / original;
+                    height = this.parent.worldScreenHeight;
+                }
                 this.parent.emit('zoomed', { viewport: this.parent, type: 'clamp-zoom' });
             }
             if (this.options.minHeight !== null && height < this.options.minHeight)
