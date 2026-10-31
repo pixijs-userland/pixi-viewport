@@ -196,13 +196,12 @@ a {
     opacity: 0;
 }
 
+/* <details> wraps its content in a box that ignores flex sizing, so the code block itself gets the height limit */
 .code-panel {
     left: 12px;
     bottom: 12px;
     width: min(460px, calc(100vw - 24px));
-    max-height: 42vh;
-    display: flex;
-    flex-direction: column;
+    overflow: hidden;
 }
 
 .code-panel[open] {
@@ -217,7 +216,9 @@ a {
 .code-panel pre {
     margin: 0;
     padding: 4px 14px 14px;
+    max-height: 38vh;
     overflow: auto;
+    overscroll-behavior: contain;
     font-family: var(--mono);
     font-size: 12.5px;
     line-height: 1.55;
@@ -275,6 +276,7 @@ a {
     font-size: 12px;
     max-height: 30vh;
     overflow: auto;
+    overscroll-behavior: contain;
 }
 
 .event-panel li {
