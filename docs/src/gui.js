@@ -85,15 +85,15 @@ export function gui(viewport, drawWorld, target) {
             centerY: 0,
             interrupt: true
         },
-        mouseEdges: {
-            mouseEdges: false,
+        edgeScroll: {
+            edgeScroll: false,
             radius: 300,
             distance: 0,
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            speed: 8,
+            speed: 600,
             reverse: false,
             noDecelerate: false,
             linear: false
@@ -110,7 +110,7 @@ export function gui(viewport, drawWorld, target) {
     guiSnap()
     guiFollow(target)
     guiSnapZoom()
-    guiMouseEdges()
+    guiEdgeScroll()
 }
 
 function guiWorld() {
@@ -475,52 +475,52 @@ function guiSnapZoom() {
     }
 }
 
-function guiMouseEdges() {
+function guiEdgeScroll() {
     function change() {
-        const me = options.mouseEdges
-        _viewport.mouseEdges({ radius: me.radius !== 0 ? me.radius : null, distance: me.distance !== 0 ? me.distance : null, top: me.top !== 0 ? me.top : null, bottom: me.bottom !== 0 ? me.bottom : null, left: me.left !== 0 ? me.left : null, right: me.right !== 0 ? me.right : null, speed: me.speed, reverse: me.reverse, noDecelerate: me.noDecelerate, linear: me.linear })
+        const me = options.edgeScroll
+        _viewport.edgeScroll({ radius: me.radius !== 0 ? me.radius : null, distance: me.distance !== 0 ? me.distance : null, top: me.top !== 0 ? me.top : null, bottom: me.bottom !== 0 ? me.bottom : null, left: me.left !== 0 ? me.left : null, right: me.right !== 0 ? me.right : null, speed: me.speed, reverse: me.reverse, noDecelerate: me.noDecelerate, linear: me.linear })
     }
 
     function add() {
-        radius = mouseEdges.add(options.mouseEdges, 'radius').onChange(change)
-        distance = mouseEdges.add(options.mouseEdges, 'distance').onChange(change)
-        top = mouseEdges.add(options.mouseEdges, 'top').onChange(change)
-        left = mouseEdges.add(options.mouseEdges, 'left').onChange(change)
-        right = mouseEdges.add(options.mouseEdges, 'right').onChange(change)
-        bottom = mouseEdges.add(options.mouseEdges, 'bottom').onChange(change)
-        speed = mouseEdges.add(options.mouseEdges, 'speed').onChange(change)
-        reverse = mouseEdges.add(options.mouseEdges, 'reverse').onChange(change)
-        noDecelerate = mouseEdges.add(options.mouseEdges, 'noDecelerate').onChange(change)
-        linear = mouseEdges.add(options.mouseEdges, 'linear').onChange(change)
+        radius = edgeScroll.add(options.edgeScroll, 'radius').onChange(change)
+        distance = edgeScroll.add(options.edgeScroll, 'distance').onChange(change)
+        top = edgeScroll.add(options.edgeScroll, 'top').onChange(change)
+        left = edgeScroll.add(options.edgeScroll, 'left').onChange(change)
+        right = edgeScroll.add(options.edgeScroll, 'right').onChange(change)
+        bottom = edgeScroll.add(options.edgeScroll, 'bottom').onChange(change)
+        speed = edgeScroll.add(options.edgeScroll, 'speed').onChange(change)
+        reverse = edgeScroll.add(options.edgeScroll, 'reverse').onChange(change)
+        noDecelerate = edgeScroll.add(options.edgeScroll, 'noDecelerate').onChange(change)
+        linear = edgeScroll.add(options.edgeScroll, 'linear').onChange(change)
     }
 
-    const mouseEdges = _gui.addFolder('mouseEdges')
-    mouseEdges.add(options.mouseEdges, 'mouseEdges').onChange(
+    const edgeScroll = _gui.addFolder('edgeScroll')
+    edgeScroll.add(options.edgeScroll, 'edgeScroll').onChange(
         function (value) {
             if (value) {
                 change()
                 add()
             }
             else {
-                _viewport.plugins.remove('mouse-edges')
-                mouseEdges.remove(radius)
-                mouseEdges.remove(distance)
-                mouseEdges.remove(top)
-                mouseEdges.remove(left)
-                mouseEdges.remove(right)
-                mouseEdges.remove(bottom)
-                mouseEdges.remove(speed)
-                mouseEdges.remove(reverse)
-                mouseEdges.remove(noDecelerate)
-                mouseEdges.remove(linear)
+                _viewport.plugins.remove('edge-scroll')
+                edgeScroll.remove(radius)
+                edgeScroll.remove(distance)
+                edgeScroll.remove(top)
+                edgeScroll.remove(left)
+                edgeScroll.remove(right)
+                edgeScroll.remove(bottom)
+                edgeScroll.remove(speed)
+                edgeScroll.remove(reverse)
+                edgeScroll.remove(noDecelerate)
+                edgeScroll.remove(linear)
             }
         })
     let radius, distance, top, left, right, bottom, speed, reverse, noDecelerate, linear
-    if (options.mouseEdges.mouseEdges) {
+    if (options.edgeScroll.edgeScroll) {
         add()
     }
-    if (options.mouseEdges.mouseEdges) {
-        mouseEdges.open()
+    if (options.edgeScroll.edgeScroll) {
+        edgeScroll.open()
     }
 }
 

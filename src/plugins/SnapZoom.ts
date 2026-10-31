@@ -1,8 +1,8 @@
-import ease from '../ease';
-import { Plugin } from './Plugin';
+import ease from '../ease.js';
+import { Plugin } from './Plugin.js';
 
 import type { Point } from 'pixi.js';
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
 /** Options for {@link SnapZoom}. */
 export interface ISnapZoomOptions
@@ -129,13 +129,7 @@ export class SnapZoom extends Plugin
 
         if (this.options.time === 0)
         {
-            // TODO: Fix this
-            // @ts-expect-error todo
-            parent.container.scale.x = this.xScale;
-
-            // TODO: Fix this
-            // @ts-expect-error todo
-            parent.container.scale.y = this.yScale;
+            parent.scale.set(this.xScale, this.yScale);
 
             if (this.options.removeOnComplete)
             {

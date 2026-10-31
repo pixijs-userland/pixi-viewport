@@ -1,7 +1,7 @@
-import ease from '../ease';
-import { Plugin } from './Plugin';
+import ease from '../ease.js';
+import { Plugin } from './Plugin.js';
 
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
 export interface ISnapOptions
 {

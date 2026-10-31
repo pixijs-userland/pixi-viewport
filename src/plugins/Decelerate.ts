@@ -1,7 +1,7 @@
-import { MovedEvent } from '../types';
-import { Plugin } from './Plugin';
+import { MovedEvent } from '../types.js';
+import { Plugin } from './Plugin.js';
 
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
 export interface IDecelerateOptions
 {
@@ -110,7 +110,12 @@ export class Decelerate extends Plugin
         this.timeSinceRelease = 0;
 
         this.reset();
-        this.parent.on('moved', (data) => this.handleMoved(data));
+        this.parent.on('moved', this.handleMoved, this);
+    }
+
+    public override destroy(): void
+    {
+        this.parent.off('moved', this.handleMoved, this);
     }
 
     public down(): boolean

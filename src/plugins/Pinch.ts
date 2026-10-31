@@ -1,9 +1,9 @@
 import { Point } from 'pixi.js';
-import { Plugin } from './Plugin';
+import { Plugin } from './Plugin.js';
 
 import type { FederatedPointerEvent, PointData } from 'pixi.js';
-import type { IViewportTouch } from '../InputManager';
-import type { Viewport } from '../Viewport';
+import type { IViewportTouch } from '../InputManager.js';
+import type { Viewport } from '../Viewport.js';
 
 /** Options for {@link Pinch}. */
 export interface IPinchOptions

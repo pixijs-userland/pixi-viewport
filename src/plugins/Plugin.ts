@@ -1,5 +1,5 @@
 import type { FederatedEvent } from 'pixi.js';
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
 /**
  * Derive this class to create user-defined plugins

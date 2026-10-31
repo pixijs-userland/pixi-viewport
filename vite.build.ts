@@ -4,11 +4,7 @@ import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 
 const globals = {
-    '@pixi/core': 'PIXI',
-    '@pixi/display': 'PIXI',
-    '@pixi/events': 'PIXI',
-    '@pixi/math': 'PIXI',
-    '@pixi/ticker': 'PIXI',
+    'pixi.js': 'PIXI',
 };
 
 export default defineConfig({
@@ -19,7 +15,7 @@ export default defineConfig({
             fileName: 'pixi_viewport',
         },
         rollupOptions: {
-            external: ['pixi.js', ...Object.keys(globals)],
+            external: Object.keys(globals),
             output: {
                 globals,
             },

@@ -1,9 +1,9 @@
 import { Point } from 'pixi.js';
-import { Plugin } from './Plugin';
+import { Plugin } from './Plugin.js';
 
 import type { FederatedPointerEvent, PointData } from 'pixi.js';
-import type { Viewport } from '../Viewport';
-import type { Decelerate } from './Decelerate';
+import type { Viewport } from '../Viewport.js';
+import type { Decelerate } from './Decelerate.js';
 
 /** Options for {@link Drag}. */
 export interface IDragOptions
@@ -102,6 +102,14 @@ export interface IDragOptions
    * @default false
    */
     wheelSwapAxes?: boolean;
+
+    /**
+   * Ignore single-finger touch drags so the page can still scroll normally.
+   * Two-finger drags still move the viewport when the pinch plugin is not active.
+   *
+   * @default false
+   */
+    disableOneFingerDrag?: boolean;
 }
 
 const DEFAULT_DRAG_OPTIONS: Required<IDragOptions> = {
@@ -118,6 +126,7 @@ const DEFAULT_DRAG_OPTIONS: Required<IDragOptions> = {
     ignoreKeyToPressOnTouch: false,
     lineHeight: 20,
     wheelSwapAxes: false,
+    disableOneFingerDrag: false,
 };
 
 /**
@@ -308,6 +317,11 @@ export class Drag extends Plugin
         const isMouse = event.pointerType === 'mouse';
         const count = this.parent.input.count();
 
+        if (this.options.disableOneFingerDrag && event.pointerType === 'touch' && count === 1)
+        {
+            return false;
+        }
+
         if (count === 1 || (count > 1 && !this.parent.plugins.get('pinch', true)))
         {
             if (!isMouse || this.mouse[event.button])
@@ -329,7 +343,7 @@ export class Drag extends Plugin
             !this.options.keyToPress
       || this.keyIsPressed
       || (this.options.ignoreKeyToPressOnTouch
-        && event.data.pointerType === 'touch')
+        && event.pointerType === 'touch')
         );
     }
 
@@ -367,7 +381,7 @@ export class Drag extends Plugin
         {
             return false;
         }
-        if (this.last && this.current === event.data.pointerId)
+        if (this.last && this.current === event.pointerId)
         {
             const x = event.global.x;
             const y = event.global.y;
@@ -408,8 +422,8 @@ export class Drag extends Plugin
                     {
                         this.parent.emit('drag-start', {
                             event,
-                            screen: new Point(this.last.x, this.last.y),
-                            world: this.parent.toWorld(new Point(this.last.x, this.last.y)),
+                            screen: new Point(x, y),
+                            world: this.parent.toWorld(new Point(x, y)),
                             viewport: this.parent,
                         });
                     }
@@ -454,9 +468,7 @@ export class Drag extends Plugin
         {
             if (this.moved)
             {
-                const screen = new Point(this.last.x, this.last.y);
-
-                (this.parent.parent || this.parent).toGlobal(screen, screen, true);
+                const screen = new Point(event.global.x, event.global.y);
 
                 this.parent.emit('drag-end', {
                     event,

@@ -1,7 +1,8 @@
 import { Point } from 'pixi.js';
-import { Plugin } from './Plugin';
+import { Plugin } from './Plugin.js';
 
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
+import type { Decelerate } from './Decelerate.js';
 
 /**
  * There are three ways to clamp:
@@ -89,6 +90,8 @@ export class Clamp extends Plugin
         y: number | null;
         scaleX: number | null;
         scaleY: number | null;
+        screenWidth: number | null;
+        screenHeight: number | null;
     };
 
     protected noUnderflow!: boolean;
@@ -123,8 +126,17 @@ export class Clamp extends Plugin
                     : null;
         }
 
+        // false means "do not clamp this side", same as null
+        for (const side of ['left', 'right', 'top', 'bottom'] as const)
+        {
+            if (this.options[side] === false)
+            {
+                this.options[side] = null;
+            }
+        }
+
         this.parseUnderflow();
-        this.last = { x: null, y: null, scaleX: null, scaleY: null };
+        this.last = { x: null, y: null, scaleX: null, scaleY: null, screenWidth: null, screenHeight: null };
         this.update();
     }
 
@@ -179,13 +191,14 @@ export class Clamp extends Plugin
       && this.parent.y === this.last.y
       && this.parent.scale.x === this.last.scaleX
       && this.parent.scale.y === this.last.scaleY
+      && this.parent.screenWidth === this.last.screenWidth
+      && this.parent.screenHeight === this.last.screenHeight
         )
         {
             return;
         }
         const original = new Point(this.parent.x, this.parent.y);
-        // TODO: Fix
-        const decelerate: any = (this.parent.plugins as any).decelerate || {};
+        const decelerate: Partial<Decelerate> = this.parent.plugins.get('decelerate', true) || {};
 
         if (this.options.left !== null || this.options.right !== null)
         {
@@ -363,6 +376,8 @@ export class Clamp extends Plugin
         this.last.y = this.parent.y;
         this.last.scaleX = this.parent.scale.x;
         this.last.scaleY = this.parent.scale.y;
+        this.last.screenWidth = this.parent.screenWidth;
+        this.last.screenHeight = this.parent.screenHeight;
     }
 
     public reset(): void

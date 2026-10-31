@@ -1,11 +1,11 @@
 declare namespace PixiMixins
 {
-  type Viewport = import('./Viewport').Viewport;
-  type PixiViewportClickedEvent = import('./types').ClickedEvent;
-  type PixiViewportDragEvent = import('./types').DragEvent;
-  type PixiViewportMovedEvent = import('./types').MovedEvent;
-  type PixiViewportZoomedEvent = import('./types').ZoomedEvent;
-  type PixiViewportWheelStartEvent = import('./types').WheelStartEvent;
+  type Viewport = import('./Viewport.js').Viewport;
+  type PixiViewportClickedEvent = import('./types.js').ClickedEvent;
+  type PixiViewportDragEvent = import('./types.js').DragEvent;
+  type PixiViewportMovedEvent = import('./types.js').MovedEvent;
+  type PixiViewportZoomedEvent = import('./types.js').ZoomedEvent;
+  type PixiViewportWheelStartEvent = import('./types.js').WheelStartEvent;
 
   interface ContainerEvents
   {
@@ -29,6 +29,8 @@ declare namespace PixiMixins
       'animate-end': [Viewport];
       'mouse-edge-start': [Viewport];
       'mouse-edge-end': [Viewport];
+      'edge-scroll-start': [Viewport];
+      'edge-scroll-end': [Viewport];
       'moved-end': [Viewport];
       'zoomed-end': [Viewport];
       'frame-end': [Viewport];

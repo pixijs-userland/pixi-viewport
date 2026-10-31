@@ -1,13 +1,14 @@
 import { Container, DestroyOptions, EventSystem, IHitArea, Point, PointData, Rectangle, Ticker, View } from 'pixi.js';
-import { InputManager } from './InputManager';
-import { PluginManager } from './PluginManager';
+import { InputManager } from './InputManager.js';
+import { PluginManager } from './PluginManager.js';
 import {
-    Animate, Bounce, Clamp, ClampZoom, Decelerate, Drag, Follow, IAnimateOptions,
+    Animate, Bounce, Clamp, ClampZoom, Decelerate, Drag, EdgeScroll, Follow, IAnimateOptions,
     IBounceOptions,
     IClampOptions,
     IClampZoomOptions,
     IDecelerateOptions,
     IDragOptions,
+    IEdgeScrollOptions,
     IFollowOptions,
     IMouseEdgesOptions,
     IPinchOptions,
@@ -15,7 +16,7 @@ import {
     ISnapZoomOptions,
     IWheelOptions,
     MouseEdges, Pinch, Snap, SnapZoom, Wheel,
-} from './plugins';
+} from './plugins/index.js';
 
 /** Options for {@link Viewport}. */
 export interface IViewportOptions
@@ -57,6 +58,14 @@ export interface IViewportOptions
      */
 
     allowPreserveDragOutside?:boolean;
+
+    /**
+     * Ignore wheel events that bubble up from other elements (e.g., an HTML modal inside the element pixi listens on).
+     * Only wheel events whose target is options.events.domElement or the renderer's canvas reach the viewport.
+     *
+     * @default false
+     */
+    ignoreWheelFromOtherElements?: boolean;
 
     /**
      * Change the default hitArea from world size to a new value
@@ -120,6 +129,7 @@ const DEFAULT_VIEWPORT_OPTIONS: Partial<ICompleteViewportOptions> = {
     disableOnContextMenu: false,
     ticker: Ticker.shared,
     allowPreserveDragOutside: false,
+    ignoreWheelFromOtherElements: false,
 };
 
 /**
@@ -151,6 +161,8 @@ const DEFAULT_VIEWPORT_OPTIONS: Partial<ICompleteViewportOptions> = {
  * @fires mouse-edge-start
  * @fires mouse-edge-end
  * @fires mouse-edge-remove
+ * @fires edge-scroll-start
+ * @fires edge-scroll-end
  * @fires moved
  * @fires moved-end
  * @fires zoomed
@@ -296,7 +308,7 @@ export class Viewport extends Container
 
             if (!this.forceHitArea)
             {
-                this._hitAreaDefault = new Rectangle(this.left, this.top, this.worldScreenWidth, this.worldScreenHeight);
+                this._hitAreaDefault = this.getVisibleBounds();
                 this.hitArea = this._hitAreaDefault;
             }
 
@@ -376,10 +388,13 @@ export class Viewport extends Container
         this.plugins.resize();
     }
 
-    /** Get visible world bounds of viewport */
+    /** Get visible world bounds of viewport (normalized so width and height are positive when scale is negative) */
     public getVisibleBounds(): Rectangle
     {
-        return new Rectangle(this.left, this.top, this.worldScreenWidth, this.worldScreenHeight);
+        const x = Math.min(this.left, this.right);
+        const y = Math.min(this.top, this.bottom);
+
+        return new Rectangle(x, y, Math.abs(this.worldScreenWidth), Math.abs(this.worldScreenHeight));
     }
 
     /** Change coordinates from screen to world */
@@ -1162,7 +1177,9 @@ export class Viewport extends Container
      * NOTE: the default event listener for 'wheel' event is the options.events.domElement.
      *
      * @param {IWheelOptions} [options]
-     * @param {number} [options.percent=0.1] - percent to scroll with each spin
+     * @param {number} [options.percent=0.1] - adjusts zoom speed (not the percent per spin): each wheel event
+     *   multiplies the scale by 2 ^ ((1 + percent) * -deltaY / 500), about 16.5% per mouse notch at the default;
+     *   use a negative value to zoom slower (see IWheelOptions.percent)
      * @param {number} [options.smooth] - smooth the zooming by providing the number of frames to zoom between wheel spins
      * @param {boolean} [options.interrupt=true] - stop smoothing with any user input on the viewport
      * @param {boolean} [options.reverse] - reverse the direction of the scroll
@@ -1244,16 +1261,50 @@ export class Viewport extends Container
      * @param {number} [options.bottom] - alternatively, set bottom distance (leave unset for no top scroll)
      * @param {number} [options.left] - alternatively, set left distance (leave unset for no top scroll)
      * @param {number} [options.right] - alternatively, set right distance (leave unset for no top scroll)
-     * @param {number} [options.speed=8] - speed in pixels/frame to scroll viewport
+     * @param {number} [options.speed=8] - scroll speed; the center moves speed * speed * 0.06 world pixels per update
+     *   (about 3.8 at the default; see IMouseEdgesOptions.speed)
      * @param {boolean} [options.reverse] - reverse direction of scroll
      * @param {boolean} [options.noDecelerate] - don't use decelerate plugin even if it's installed
      * @param {boolean} [options.linear] - if using radius, use linear movement (+/- 1, +/- 1) instead of angled
      *   movement (Math.cos(angle from center), Math.sin(angle from center))
      * @param {boolean} [options.allowButtons] allows plugin to continue working even when there's a mousedown event
+     * @deprecated use {@link Viewport.edgeScroll} instead: its `speed` is in screen pixels per second, while
+     *   mouseEdges' `speed` scrolls by speed * speed * 0.06 world pixels per frame (so it changes with zoom and frame rate).
+     *   mouseEdges keeps its current behavior for compatibility.
      */
     public mouseEdges(options: IMouseEdgesOptions): Viewport
     {
         this.plugins.add('mouse-edges', new MouseEdges(this, options));
+
+        return this;
+    }
+
+    /**
+     * Scroll viewport when the mouse is near one of the edges or outside a radius from the center of the screen.
+     *
+     * Replaces {@link Viewport.mouseEdges}: `speed` is in screen pixels per second, so scrolling is the same at every
+     * zoom level and frame rate.
+     *
+     * NOTES: fires 'moved', 'edge-scroll-start', and 'edge-scroll-end' events
+     *
+     * @param {IEdgeScrollOptions} [options]
+     * @param {number} [options.radius] - distance from center of screen in screen pixels
+     * @param {number} [options.distance] - distance from all sides in screen pixels
+     * @param {number} [options.top] - alternatively, set top distance (leave unset for no top scroll)
+     * @param {number} [options.bottom] - alternatively, set bottom distance (leave unset for no bottom scroll)
+     * @param {number} [options.left] - alternatively, set left distance (leave unset for no left scroll)
+     * @param {number} [options.right] - alternatively, set right distance (leave unset for no right scroll)
+     * @param {number} [options.speed=600] - scroll speed in screen pixels per second
+     * @param {boolean} [options.reverse] - reverse direction of scroll
+     * @param {boolean} [options.noDecelerate] - don't hand off to the decelerate plugin when scrolling stops
+     * @param {boolean} [options.linear] - if using radius, scroll along the eight compass directions instead of
+     *   directly toward the pointer
+     * @param {boolean} [options.allowButtons] - keep scrolling while a mouse button is pressed
+     * @returns {Viewport} this
+     */
+    public edgeScroll(options?: IEdgeScrollOptions): Viewport
+    {
+        this.plugins.add('edge-scroll', new EdgeScroll(this, options));
 
         return this;
     }
@@ -1436,12 +1487,24 @@ export class Viewport extends Container
  */
 
 /**
+ * Fires when edge scrolling starts
+ * @event Viewport#edge-scroll-start
+ * @type {Viewport}
+ */
+
+/**
+ * Fires when edge scrolling ends
+ * @event Viewport#edge-scroll-end
+ * @type {Viewport}
+ */
+
+/**
  * Fires when viewport moves through UI interaction, deceleration, ensureVisible, or follow
  * @event Viewport#moved
  * @type {object}
  * @property {Viewport} viewport
  * @property {string} type - (drag, snap, pinch, follow, bounce-x, bounce-y,
- *  clamp-x, clamp-y, decelerate, mouse-edges, wheel, ensureVisible)
+ *  clamp-x, clamp-y, decelerate, mouse-edges, edge-scroll, wheel, ensureVisible)
  */
 
 /**

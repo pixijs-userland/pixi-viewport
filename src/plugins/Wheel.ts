@@ -1,13 +1,24 @@
 import { Point, PointData } from 'pixi.js';
-import { Plugin } from './Plugin';
+import { Plugin } from './Plugin.js';
 
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
 /** Options for {@link Wheel}. */
 export interface IWheelOptions
 {
     /**
-   * Percent to scroll with each spin
+   * Adjusts the zoom speed. Despite its name, this is not the percent zoomed per spin.
+   *
+   * Each wheel event multiplies the scale by `2 ^ ((1 + percent) * -deltaY / 500)`
+   * (or `/ 200` for trackpad pinch). For a typical mouse wheel notch (deltaY = 100) this zooms by about:
+   * - `-0.5` → 7%
+   * - `0` → 15%
+   * - `0.1` (default) → 16.5%
+   * - `0.5` → 23%
+   * - `1` → 32%
+   *
+   * Use a negative value to zoom slower than the default. `-1` stops zooming and values below `-1` reverse it.
+   * deltaY varies by browser, OS, and device, so the actual amount per notch varies too.
    *
    * @default 0.1
    */
@@ -103,6 +114,9 @@ export class Wheel extends Plugin
     /** Flags whether the keys required to zoom are pressed currently. */
     protected keyIsPressed: boolean;
 
+    private keydownHandler?: (e: KeyboardEvent) => void;
+    private keyupHandler?: (e: KeyboardEvent) => void;
+
     /**
    * This is called by {@link Viewport.wheel}.
    */
@@ -126,21 +140,36 @@ export class Wheel extends Plugin
     protected handleKeyPresses(codes: string[]): void
     {
         if (typeof window === 'undefined') return;
-        window.addEventListener('keydown', (e) =>
+
+        this.keydownHandler = (e: KeyboardEvent) =>
         {
             if (codes.includes(e.code))
             {
                 this.keyIsPressed = true;
             }
-        });
-
-        window.addEventListener('keyup', (e) =>
+        };
+        this.keyupHandler = (e: KeyboardEvent) =>
         {
             if (codes.includes(e.code))
             {
                 this.keyIsPressed = false;
             }
-        });
+        };
+        window.addEventListener('keydown', this.keydownHandler);
+        window.addEventListener('keyup', this.keyupHandler);
+    }
+
+    public override destroy(): void
+    {
+        if (typeof window === 'undefined') return;
+        if (this.keydownHandler)
+        {
+            window.removeEventListener('keydown', this.keydownHandler);
+        }
+        if (this.keyupHandler)
+        {
+            window.removeEventListener('keyup', this.keyupHandler);
+        }
     }
 
     protected checkKeyPress(): boolean

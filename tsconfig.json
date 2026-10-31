@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "noImplicitAny": true,
-    "removeComments": true,
+    "removeComments": false,
     "preserveConstEnums": true,
     "skipLibCheck": true,
     "sourceMap": true,

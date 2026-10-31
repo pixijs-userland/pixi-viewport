@@ -1,7 +1,7 @@
-import { Plugin } from './Plugin';
+import { Plugin } from './Plugin.js';
 
 import type { Container, PointData } from 'pixi.js';
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
 /** Options for {@link Follow}. */
 export interface IFollowOptions
@@ -67,6 +67,19 @@ export class Follow extends Plugin
         this.velocity = { x: 0, y: 0 };
     }
 
+    /** Target's position in world coordinates (handles targets nested inside other containers) */
+    protected getTargetPosition(): PointData
+    {
+        const targetParent = this.target.parent;
+
+        if (!targetParent || targetParent === this.parent)
+        {
+            return this.target.position;
+        }
+
+        return this.parent.toLocal(this.target.position, targetParent);
+    }
+
     public update(elapsed: number): void
     {
         if (this.paused)
@@ -75,19 +88,20 @@ export class Follow extends Plugin
         }
 
         const center = this.parent.center;
-        let toX = this.target.x;
-        let toY = this.target.y;
+        const target = this.getTargetPosition();
+        let toX = target.x;
+        let toY = target.y;
 
         if (this.options.radius)
         {
-            const distance = Math.sqrt(Math.pow(this.target.y - center.y, 2) + Math.pow(this.target.x - center.x, 2));
+            const distance = Math.sqrt(Math.pow(target.y - center.y, 2) + Math.pow(target.x - center.x, 2));
 
             if (distance > this.options.radius)
             {
-                const angle = Math.atan2(this.target.y - center.y, this.target.x - center.x);
+                const angle = Math.atan2(target.y - center.y, target.x - center.x);
 
-                toX = this.target.x - (Math.cos(angle) * this.options.radius);
-                toY = this.target.y - (Math.sin(angle) * this.options.radius);
+                toX = target.x - (Math.cos(angle) * this.options.radius);
+                toY = target.y - (Math.sin(angle) * this.options.radius);
             }
             else
             {
@@ -115,8 +129,8 @@ export class Follow extends Plugin
                         if (distance > decelerationDistance)
                         {
                             this.velocity = {
-                                x: Math.min(this.velocity.x + (this.options.acceleration * elapsed, this.options.speed)),
-                                y: Math.min(this.velocity.y + (this.options.acceleration * elapsed, this.options.speed))
+                                x: Math.min(this.velocity.x + (this.options.acceleration * elapsed), this.options.speed),
+                                y: Math.min(this.velocity.y + (this.options.acceleration * elapsed), this.options.speed)
                             };
                         }
                         else
