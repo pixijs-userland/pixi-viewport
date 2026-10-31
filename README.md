@@ -117,11 +117,15 @@ sprite.position.set(100, 100);
 
 ## Installation
 
-    yarn add pixi-viewport
+    npm i pixi-viewport
 
 or
 
-    npm i pixi-viewport
+    pnpm add pixi-viewport
+
+or
+
+    yarn add pixi-viewport
 
 or [grab the latest release](https://github.com/pixijs-userland/pixi-viewport/releases/) and use it:
 
@@ -168,15 +172,17 @@ viewport.plugins.add("name", plugin, index);
 Tests use [Vitest](https://vitest.dev/) with jsdom.
 
 1. Clone repository
-2. yarn install
-3. yarn test (or `yarn test:watch` to rerun on changes)
-4. yarn coverage (for a coverage report)
+2. pnpm install
+3. pnpm test (or `pnpm test:watch` to rerun on changes)
+4. pnpm coverage (for a coverage report)
 
 ## Development Recipe
 
+This project uses [pnpm](https://pnpm.io/) (the version is pinned in `package.json`'s `packageManager` field).
+
 1. clone repository
-2. yarn install
-3. yarn dev
+2. pnpm install
+3. pnpm dev
 4. open browser to http://localhost:5173
 
 PRs are more than welcome!
