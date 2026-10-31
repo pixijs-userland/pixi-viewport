@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>pixi-viewport playground</title>
     <meta name="description" content="Try every pixi-viewport plugin: drag, pinch, wheel zoom, decelerate, clamp, bounce, edge scrolling, follow, snap, and animate.">
+    <script>
+        // apply the saved theme before the page renders (shared with the API docs)
+        try { document.documentElement.dataset.theme = localStorage.getItem('tsd-theme') || 'os'; }
+        catch { document.documentElement.dataset.theme = 'os'; }
+    </script>
 </head>
 <body>
     <header class="site-header">
@@ -16,6 +21,7 @@
             <a href="./api/">API</a>
             <a href="https://github.com/pixijs-userland/pixi-viewport">GitHub</a>
         </nav>
+        <button class="theme-toggle" type="button" aria-label="Theme"></button>
     </header>
 
     <main class="stage" aria-label="Interactive viewport demo"></main>

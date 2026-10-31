@@ -1,5 +1,6 @@
 import { Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
 import { PALETTE, Random } from './random';
+import { isDarkTheme, onThemeChange } from './theme';
 
 import type { Ticker } from 'pixi.js';
 import type { Viewport } from 'pixi-viewport';
@@ -7,14 +8,36 @@ import type { Viewport } from 'pixi-viewport';
 /** Grid and label colors that read on both light and dark page backgrounds */
 const GRID_COLOR = 0x8892a6;
 
-function isDark(): boolean
-{
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-}
-
 function labelColor(): number
 {
-    return isDark() ? 0xcbd5e1 : 0x334155;
+    return isDarkTheme() ? 0xcbd5e1 : 0x334155;
+}
+
+/** Labels drawn in pixi, recolored when the theme switch changes */
+const labels = new Set<Text>();
+
+onThemeChange(() =>
+{
+    for (const label of labels)
+    {
+        if (label.destroyed)
+        {
+            labels.delete(label);
+        }
+        else
+        {
+            label.style.fill = labelColor();
+        }
+    }
+});
+
+function themedLabel(text: string, fontSize: number): Text
+{
+    const label = new Text({ text, style: { fontFamily: 'system-ui, sans-serif', fontSize, fill: labelColor() } });
+
+    labels.add(label);
+
+    return label;
 }
 
 /** Draws a grid with minor and major lines plus coordinate labels on the major lines */
@@ -44,13 +67,11 @@ function grid(width: number, height: number, minor: number, major: number): Cont
     lines.stroke({ width: 2, color: GRID_COLOR, alpha: 0.35 });
     container.addChild(lines);
 
-    const style = { fontFamily: 'system-ui, sans-serif', fontSize: 22, fill: labelColor() };
-
     for (let x = 0; x < width; x += major)
     {
         for (let y = 0; y < height; y += major)
         {
-            const label = new Text({ text: `${x}, ${y}`, style });
+            const label = themedLabel(`${x}, ${y}`, 22);
 
             label.alpha = 0.6;
             label.position.set(x + 8, y + 6);
@@ -180,15 +201,10 @@ export function buildTimeline(viewport: Viewport, width: number, height: number)
     ruler.stroke({ width: 2, color: GRID_COLOR, alpha: 0.4 });
     viewport.addChild(ruler);
 
-    const style = { fontFamily: 'system-ui, sans-serif', fontSize: 20, fill: labelColor() };
-
     for (let x = 0; x < width; x += secondWidth * 10)
     {
         const seconds = x / secondWidth;
-        const label = new Text({
-            text: `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`,
-            style,
-        });
+        const label = themedLabel(`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`, 20);
 
         label.position.set(x + 6, 6);
         viewport.addChild(label);

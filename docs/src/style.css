@@ -1,5 +1,5 @@
 :root {
-    color-scheme: light dark;
+    color-scheme: light;
 
     --bg: #f6f7f9;
     --surface: rgba(255, 255, 255, 0.92);
@@ -22,8 +22,26 @@
     --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 }
 
+/* dark theme: chosen with the header switch (data-theme="dark"), or following the OS when the switch is on Auto */
+:root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --bg: #0b1020;
+    --surface: rgba(17, 24, 39, 0.92);
+    --surface-solid: #111827;
+    --border: rgba(226, 232, 240, 0.14);
+    --text: #e5e7eb;
+    --text-muted: #9ca3af;
+    --accent: #f472b6;
+    --accent-soft: rgba(244, 114, 182, 0.16);
+    --code-bg: #030712;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme='light']):not([data-theme='dark']) {
+        color-scheme: dark;
+
         --bg: #0b1020;
         --surface: rgba(17, 24, 39, 0.92);
         --surface-solid: #111827;
@@ -111,6 +129,28 @@ a {
 
 .site-header nav a[aria-current='page'] {
     color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.theme-toggle {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+    color: var(--text);
     background: var(--accent-soft);
 }
 
@@ -464,6 +504,10 @@ a {
 
     .site-header nav {
         mask-image: linear-gradient(to right, black 85%, transparent);
+    }
+
+    .theme-toggle .label {
+        display: none;
     }
 
     .event-panel {
