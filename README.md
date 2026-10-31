@@ -6,6 +6,8 @@ Features include dragging, pinch-to-zoom, mouse wheel zooming, decelerated dragg
 
 All features are configurable and removable, so set up the viewport to be exactly what you need.
 
+If pixi-viewport is useful to you, you can [sponsor its development on GitHub](https://github.com/sponsors/davidfig).
+
 ## AI-assisted development
 
 Starting in October 2026, [Claude](https://www.anthropic.com/claude) (an AI model by Anthropic) assists with editing this code, including code review, bug fixes, and changes to documentation. A maintainer reviews every change before it is released. If you prefer not to use software developed with AI assistance, please take this into account when choosing whether to use pixi-viewport.
