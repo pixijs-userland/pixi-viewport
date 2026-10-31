@@ -75,7 +75,7 @@ export interface IDragOptions
     mouseButtons?: 'all' | string;
 
     /**
-   * Array containing {@link key|https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code} codes of
+   * Array containing [KeyboardEvent.code](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code) values of
    * keys that can be pressed for the drag to be triggered, e.g.: ['ShiftLeft', 'ShiftRight'}.
    *
    * @default null

@@ -67,7 +67,7 @@ export interface IWheelOptions
     axis?: 'all' | 'x' | 'y';
 
     /**
-   * Array containing {@link key|https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code} codes of
+   * Array containing [KeyboardEvent.code](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code) values of
    * keys that can be pressed for the zoom to be triggered, e.g.: ['ShiftLeft', 'ShiftRight'}.
    *
    * @default null
@@ -321,7 +321,12 @@ export class Wheel extends Plugin
         {
             this.pinch(e);
         }
-        else if (this.options.wheelZoom)
+        else if (!this.options.wheelZoom)
+        {
+            // nothing to zoom, so let the page (or the drag plugin) use the wheel event
+            return false;
+        }
+        else
         {
             const point = this.parent.input.getPointerPosition(e);
             const sign = this.options.reverse ? -1 : 1;

@@ -203,7 +203,7 @@ export class Viewport extends Container
     private _disableOnContextMenu = (e: MouseEvent) => e.preventDefault();
 
     /**
-     * @param {IViewportOptions} ViewportOptions
+     * @param {IViewportOptions} options
      * @param {number} [options.screenWidth=window.innerWidth]
      * @param {number} [options.screenHeight=window.innerHeight]
      * @param {number} [options.worldWidth=this.width]
@@ -328,8 +328,8 @@ export class Viewport extends Container
 
     /**
      * Use this to set screen and world sizes, needed for pinch/wheel/clamp/bounce.
-     * @param {number} screenWidth=window.innerWidth
-     * @param {number} screenHeight=window.innerHeight
+     * @param {number} screenWidth - defaults to window.innerWidth
+     * @param {number} screenHeight - defaults to window.innerHeight
      * @param {number} [worldWidth]
      * @param {number} [worldHeight]
      */
@@ -478,7 +478,7 @@ export class Viewport extends Container
 
     public moveCenter(x: number, y: number): Viewport;
 
-    /** Move center of viewport to {@code center}. */
+    /** Move center of viewport to `center`. */
     public moveCenter(center: PointData): Viewport;
 
     /**
@@ -1004,7 +1004,7 @@ export class Viewport extends Container
      *  'right' 'middle', or some combination, like, 'middle-right'; you may want to set
      *   viewport.options.disableOnContextMenu if you want to use right-click dragging
      * @param {string[]} [options.keyToPress=null] - array containing
-     *  {@link key|https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code} codes of keys that can be
+     *  [KeyboardEvent.code](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code) values of keys that can be
      *  pressed for the drag to be triggered, e.g.: ['ShiftLeft', 'ShiftRight'}.
      * @param {boolean} [options.ignoreKeyToPressOnTouch=false] - ignore keyToPress for touch events
      * @param {number} [options.lineHeight=20] - scaling factor for non-DOM_DELTA_PIXEL scrolling events
@@ -1042,10 +1042,11 @@ export class Viewport extends Container
      * @param {(number|boolean)} [options.right=false] - clamp right; true = viewport.worldWidth
      * @param {(number|boolean)} [options.top=false] - clamp top; true = 0
      * @param {(number|boolean)} [options.bottom=false] - clamp bottom; true = viewport.worldHeight
-     * @param {string} [direction] - (all, x, or y) using clamps of [0, viewport.worldWidth/viewport.worldHeight];
+     * @param {string} [options.direction] - (all, x, or y) using clamps of [0, viewport.worldWidth/viewport.worldHeight];
      *  replaces left/right/top/bottom if set
-     * @param {string} [underflow=center] - where to place world if too small for screen (e.g., top-right, center,
-     *  none, bottomLeft)     * @returns {Viewport} this
+     * @param {string} [options.underflow=center] - where to place world if too small for screen (e.g., top-right, center,
+     *  none, bottomLeft)
+     * @returns {Viewport} this
      */
     public clamp(options?: IClampOptions): Viewport
     {
@@ -1083,11 +1084,8 @@ export class Viewport extends Container
      *  (e.g., 'top-bottom-right')
      * @param {number} [options.friction=0.5] - friction to apply to decelerate if active
      * @param {number} [options.time=150] - time in ms to finish bounce
-     * @param {object} [options.bounceBox] - use this bounceBox instead of (0, 0, viewport.worldWidth, viewport.worldHeight)
-     * @param {number} [options.bounceBox.x=0]
-     * @param {number} [options.bounceBox.y=0]
-     * @param {number} [options.bounceBox.width=viewport.worldWidth]
-     * @param {number} [options.bounceBox.height=viewport.worldHeight]
+     * @param {object} [options.bounceBox] - use this bounceBox ({ x, y, width, height }, in world coordinates) instead
+     *  of (0, 0, viewport.worldWidth, viewport.worldHeight)
      * @param {string|function} [options.ease=easeInOutSine] - ease function or name
      *  (see http://easings.net/ for supported names)
      * @param {string} [options.underflow=center] - (top/bottom/center and left/right/center, or center)

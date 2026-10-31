@@ -28,7 +28,9 @@ New:
 - `drag({ disableOneFingerDrag: true })` ignores one-finger touch drags so the page can scroll.
 - `clampZoom({ keepAspectRatio: false })` clamps one axis at a time, for zooming along a single axis.
 - `new Viewport({ ignoreWheelFromOtherElements: true })` ignores wheel events that bubble up from other elements, such as HTML overlays.
-- A pixi object inside the viewport can call `stopPropagation()` on its `wheel` event to keep the viewport from zooming.
+- A pixi object inside the viewport can call `stopPropagation()` on its `wheel` event to keep the viewport from zooming. With `passiveWheel: false`, the page doesn't scroll either.
+- The event types (`DragEvent`, `MovedEvent`, `ZoomedEvent`, and others) are exported.
+- A new demo site: a playground with presets and a live code panel, plus examples for embedding a viewport in a scrolling page and for overlays. The API docs are generated with TypeDoc.
 
 Fixed:
 
@@ -42,6 +44,7 @@ Fixed:
 - Type declarations use `.js` import extensions (works with `moduleResolution: NodeNext`) and include JSDoc comments.
 - The UMD build uses the `PIXI` global.
 - Decelerate and Wheel remove their event listeners when removed.
+- With `wheel({ wheelZoom: false })`, a plain wheel event the viewport doesn't use no longer stops the page from scrolling (it was blocked whenever `passiveWheel` was `false`).
 
 Documented without changing behavior: the wheel `percent` option and the mouseEdges `speed` option (see their JSDoc).
 
@@ -74,12 +77,13 @@ This project was migrated to Typescript (thanks [@ShukantPal](https://github.com
 
 ## Live Examples
 
-- New: [https://viewport.pixijs.io/](https://viewport.pixijs.io/) (using [flems.io](https://flems.io))
-- Original: [https://viewport.pixijs.io/original/](https://viewport.pixijs.io/original)
+- [Playground](https://viewport.pixijs.io/): try every plugin, switch between presets (map, edge scrolling, follow, timeline, bounce), and copy the code for your setup.
+- [In a scrolling page](https://viewport.pixijs.io/examples/scrolling-page.html): embed a viewport in an article without trapping the mouse wheel or one-finger swipes.
+- [Overlays](https://viewport.pixijs.io/examples/overlays.html): keep HTML panels and scrollable pixi objects from zooming the viewport underneath.
 
 ## API Documentation
 
-[https://viewport.pixijs.io/jsdoc/](https://viewport.pixijs.io/jsdoc/)
+[https://viewport.pixijs.io/api/](https://viewport.pixijs.io/api/)
 
 ## Simple Example
 
@@ -185,7 +189,8 @@ This project uses [pnpm](https://pnpm.io/) (the version is pinned in `package.js
 1. clone repository
 2. pnpm install
 3. pnpm dev
-4. open browser to http://localhost:5173
+4. open browser to http://localhost:5173 (the playground; the example pages are linked from its header)
+5. pnpm docs (builds the demo site and API docs into docs/dist; `pnpm docs:serve` to preview)
 
 PRs are more than welcome!
 

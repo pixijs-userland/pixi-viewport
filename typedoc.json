@@ -1,0 +1,26 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "name": "pixi-viewport",
+    "entryPoints": [
+        "src/index.ts"
+    ],
+    "out": "docs/dist/api",
+    "tsconfig": "tsconfig.json",
+    "readme": "none",
+    "excludeInternal": true,
+    "excludePrivate": true,
+    "excludeProtected": false,
+    "sort": [
+        "source-order"
+    ],
+    "navigationLinks": {
+        "Playground": "../",
+        "GitHub": "https://github.com/pixijs-userland/pixi-viewport"
+    },
+    "githubPages": false,
+    "externalSymbolLinkMappings": {
+        "pixi.js": {
+            "*": "https://pixijs.download/release/docs/index.html"
+        }
+    }
+}

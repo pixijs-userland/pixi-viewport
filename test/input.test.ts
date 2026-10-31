@@ -121,6 +121,19 @@ describe('InputManager', () =>
             expect(viewport.scale.x).toBeGreaterThan(1);
         });
 
+        it('keeps the page from scrolling when a child used the wheel and passiveWheel is false', () =>
+        {
+            const { viewport, canvas } = createViewport({ passiveWheel: false });
+
+            viewport.wheel();
+            const stopped = new WheelEvent('wheel', { deltaY: -100, clientX: 100, clientY: 100, cancelable: true });
+
+            viewport.emit('wheelcapture', { nativeEvent: stopped } as unknown as FederatedWheelEvent);
+            canvas.dispatchEvent(stopped);
+            expect(viewport.scale.x).toBe(1);
+            expect(stopped.defaultPrevented).toBe(true);
+        });
+
         it('calls preventDefault only when passiveWheel is false', () =>
         {
             const passive = createViewport();

@@ -1,5 +1,0 @@
-# Dependency build scripts pnpm may run. Both of these come from yy-random's babel-cli dependency (used only by the
-# docs demo) and aren't needed: core-js@2 only prints a banner and fsevents@1 is an old optional macOS file watcher.
-allowBuilds:
-  core-js: false
-  fsevents: false

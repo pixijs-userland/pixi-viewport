@@ -58,9 +58,9 @@ export class Plugin
 
     /**
      * Called on each tick
-     * @param {number} elapsed time in millisecond since last update
+     * @param {number} _elapsed time in milliseconds since last update
      */
-    public update(_delta: number): void
+    public update(_elapsed: number): void
     {
         // Override for implementation
     }

@@ -86,6 +86,20 @@ describe('Wheel', () =>
         expect(viewport.scale.x).toBeCloseTo(Math.pow(2, 1.1 * (10 / 200)));
     });
 
+    it('lets the page scroll when it has nothing to zoom', () =>
+    {
+        const { viewport, canvas } = createViewport({ passiveWheel: false });
+
+        viewport.wheel({ wheelZoom: false, trackpadPinch: true });
+
+        // plain wheel: not handled, so the page can scroll
+        expect(wheel(canvas, { deltaY: 100, clientX: 200, clientY: 150 }).defaultPrevented).toBe(false);
+
+        // pinch (ctrl + wheel): zooms, so the page must not zoom too
+        expect(wheel(canvas, { deltaY: -10, ctrlKey: true, clientX: 200, clientY: 150 }).defaultPrevented).toBe(true);
+        expect(viewport.scale.x).toBeGreaterThan(1);
+    });
+
     it('removes its key listeners when removed', () =>
     {
         const { viewport } = createViewport();

@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es2022",
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "lib": ["es2022", "dom", "dom.iterable"],
+        "strict": true,
+        "noEmit": true,
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "types": ["vite/client"],
+        "paths": {
+            "pixi-viewport": ["../src/index.ts"]
+        }
+    },
+    "include": ["src/**/*", "../src/global.d.ts"]
+}

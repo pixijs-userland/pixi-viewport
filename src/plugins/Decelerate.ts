@@ -27,7 +27,7 @@ export interface IDecelerateOptions
     minSpeed?: number;
 }
 
-/** Viewport position snapshot that's saved by {@link DeceleratePlugin} to estimate panning velocity. */
+/** Viewport position snapshot that's saved by {@link Decelerate} to estimate panning velocity. */
 export interface IDecelerateSnapshot
 {
     /** x-coordinate of the viewport. */

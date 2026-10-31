@@ -264,6 +264,13 @@ export class InputManager
         // a child of the viewport stopped propagation of pixi's wheel event before it reached the viewport
         if (this.wheelCaptured === event && this.wheelBubbled !== event)
         {
+            // the child used the wheel, so the page shouldn't scroll either (pixi's own wheel listener is passive,
+            // so the child can't prevent it)
+            if (!this.viewport.options.passiveWheel)
+            {
+                event.preventDefault();
+            }
+
             return;
         }
 
