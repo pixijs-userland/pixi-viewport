@@ -30,8 +30,9 @@
             by the viewport. These options leave them to the page:
         </p>
         <ul>
-            <li><code>wheel({ wheelZoom: false, trackpadPinch: true })</code>: a plain wheel scrolls the page; a
-                trackpad pinch (or <kbd>Ctrl</kbd> + wheel) zooms the map.</li>
+            <li><code>wheel({ wheelZoom: false, trackpadPinch: true, trackpadPinchSpeed: 2.5 })</code>: a plain
+                wheel scrolls the page; a trackpad pinch (or <kbd>Ctrl</kbd> + wheel) zooms the map.
+                <code>trackpadPinchSpeed</code> makes the pinch feel like a map app's.</li>
             <li><code>drag({ wheel: false, disableOneFingerDrag: true })</code>: one finger scrolls the page on
                 phones; two fingers pan and pinch the map. A mouse still drags.</li>
         </ul>

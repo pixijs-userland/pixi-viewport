@@ -49,7 +49,12 @@ const viewport = new Viewport({
 app.stage.addChild(viewport);
 app.renderer.on('resize', (width: number, height: number) => viewport.resize(width, height));
 buildMap(viewport, Ticker.shared, WORLD_WIDTH, WORLD_HEIGHT);
-viewport.drag().pinch().wheel().decelerate().clampZoom({ minScale: 0.2, maxScale: 4 });
+viewport
+    .drag()
+    .pinch()
+    .wheel({ trackpadPinch: true, trackpadPinchSpeed: 2.5 })
+    .decelerate()
+    .clampZoom({ minScale: 0.2, maxScale: 4 });
 
 /** A scrollable list drawn in pixi, placed in the world so it pans and zooms with the map */
 function pixiList(): Container

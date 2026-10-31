@@ -86,6 +86,19 @@ describe('Wheel', () =>
         expect(viewport.scale.x).toBeCloseTo(Math.pow(2, 1.1 * (10 / 200)));
     });
 
+    it('speeds up trackpad pinch with trackpadPinchSpeed without changing mouse wheel zoom', () =>
+    {
+        const { viewport, canvas } = createViewport();
+
+        viewport.wheel({ trackpadPinch: true, trackpadPinchSpeed: 2.5 });
+        wheel(canvas, { deltaY: -5, ctrlKey: true, clientX: 200, clientY: 150 });
+        expect(viewport.scale.x).toBeCloseTo(Math.pow(2, 1.1 * 2.5 * (5 / 200)));
+
+        viewport.scale.set(1);
+        wheel(canvas, { deltaY: -100, clientX: 200, clientY: 150 });
+        expect(viewport.scale.x).toBeCloseTo(Math.pow(2, 1.1 * 0.2));
+    });
+
     it('lets the page scroll when it has nothing to zoom', () =>
     {
         const { viewport, canvas } = createViewport({ passiveWheel: false });

@@ -1184,6 +1184,9 @@ export class Viewport extends Container
      * @param {PIXI.Point} [options.center] - place this point at center during zoom instead of current mouse position
      * @param {number} [options.lineHeight=20] - scaling factor for non-DOM_DELTA_PIXEL scrolling events
      * @param {('all'|'x'|'y')} [options.axis=all] - axis to zoom
+     * @param {boolean} [options.trackpadPinch=false] - zoom with a trackpad pinch (wheel events with ctrlKey)
+     * @param {number} [options.trackpadPinchSpeed=1] - multiplies trackpad pinch zoom speed without changing mouse
+     *   wheel zoom (2.5 feels close to map apps)
      * @return {Viewport} this
      */
     public wheel(options?: IWheelOptions): Viewport

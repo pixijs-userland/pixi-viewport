@@ -47,7 +47,9 @@ function apply(): void
     const drag = pageWheel.checked
         ? oneFinger.checked ? `{ wheel: false, disableOneFingerDrag: true }` : `{ wheel: false }`
         : oneFinger.checked ? `{ disableOneFingerDrag: true }` : '';
-    const wheel = pageWheel.checked ? `{ wheelZoom: false, trackpadPinch: true }` : '';
+    const wheel = pageWheel.checked
+        ? `{ wheelZoom: false, trackpadPinch: true, trackpadPinchSpeed: 2.5 }`
+        : `{ trackpadPinch: true, trackpadPinchSpeed: 2.5 }`;
 
     // pixi sets touch-action: none on the canvas; pan-y lets the browser scroll the page with one finger
     app.canvas.style.touchAction = oneFinger.checked ? 'pan-y' : 'none';
@@ -56,7 +58,7 @@ function apply(): void
     viewport
         .drag({ wheel: !pageWheel.checked, disableOneFingerDrag: oneFinger.checked })
         .pinch()
-        .wheel(pageWheel.checked ? { wheelZoom: false, trackpadPinch: true } : {})
+        .wheel({ wheelZoom: !pageWheel.checked, trackpadPinch: true, trackpadPinchSpeed: 2.5 })
         .decelerate()
         .clamp({ direction: 'all' })
         .clampZoom({ minScale: viewport.findFit(WORLD_WIDTH, WORLD_HEIGHT), maxScale: 4 });

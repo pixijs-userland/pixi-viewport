@@ -27,6 +27,7 @@ New:
 - `viewport.edgeScroll()` scrolls when the mouse is near the screen edges, with `speed` in screen pixels per second. It replaces `mouseEdges()`, which is deprecated but unchanged.
 - `drag({ disableOneFingerDrag: true })` ignores one-finger touch drags so the page can scroll.
 - `clampZoom({ keepAspectRatio: false })` clamps one axis at a time, for zooming along a single axis.
+- `wheel({ trackpadPinch: true, trackpadPinchSpeed: 2.5 })` speeds up trackpad pinch zooming without changing mouse wheel zooming. The default (`1`) keeps the current speed, which is slow for a pinch.
 - `new Viewport({ ignoreWheelFromOtherElements: true })` ignores wheel events that bubble up from other elements, such as HTML overlays.
 - A pixi object inside the viewport can call `stopPropagation()` on its `wheel` event to keep the viewport from zooming. With `passiveWheel: false`, the page doesn't scroll either.
 - The event types (`DragEvent`, `MovedEvent`, `ZoomedEvent`, and others) are exported.

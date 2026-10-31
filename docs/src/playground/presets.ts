@@ -17,6 +17,8 @@ export interface Preset
 
 /** Panel values used when a preset doesn't set an option (library defaults, or a useful starting value) */
 const PANEL_DEFAULTS: Partial<Record<PluginName, Record<string, OptionValue>>> = {
+    // a trackpad pinch sends small wheel deltas; 2.5x feels close to map apps (the library default is 1)
+    wheel: { trackpadPinch: true, trackpadPinchSpeed: 2.5 },
     clamp: { direction: 'all' },
     clampZoom: { minScale: 0.2, maxScale: 4 },
     edgeScroll: { distance: 40 },

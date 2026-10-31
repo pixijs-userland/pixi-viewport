@@ -58,6 +58,7 @@ export const PLUGINS = {
             axis: { libraryDefault: 'all', choices: ['all', 'x', 'y'] },
             wheelZoom: { libraryDefault: true },
             trackpadPinch: { libraryDefault: false },
+            trackpadPinchSpeed: { libraryDefault: 1, min: 0.25, max: 6, step: 0.25 },
             reverse: { libraryDefault: false },
         },
     },

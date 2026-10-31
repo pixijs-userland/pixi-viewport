@@ -10,7 +10,8 @@ export interface IWheelOptions
    * Adjusts the zoom speed. Despite its name, this is not the percent zoomed per spin.
    *
    * Each wheel event multiplies the scale by `2 ^ ((1 + percent) * -deltaY / 500)`
-   * (or `/ 200` for trackpad pinch). For a typical mouse wheel notch (deltaY = 100) this zooms by about:
+   * (or `2 ^ ((1 + percent) * trackpadPinchSpeed * -deltaY / 200)` for a trackpad pinch with `trackpadPinch` on).
+   * For a typical mouse wheel notch (deltaY = 100) this zooms by about:
    * - `-0.5` → 7%
    * - `0` → 15%
    * - `0.1` (default) → 16.5%
@@ -75,9 +76,23 @@ export interface IWheelOptions
     keyToPress?: string[] | null;
 
     /**
-   * pinch the trackpad to zoom
+   * Pinch the trackpad to zoom. Browsers send a trackpad pinch as wheel events with `ctrlKey` set; with this on,
+   * those events zoom using `trackpadPinchSpeed` (and zoom even when `wheelZoom` is false).
+   *
+   * @default false
    */
     trackpadPinch?: boolean;
+
+    /**
+     * Multiplies the zoom speed of a trackpad pinch (only used when `trackpadPinch` is on). Unlike `percent`, it
+     * doesn't change mouse wheel zooming.
+     *
+     * A pinch arrives as many wheel events with small deltas (deltaY around 2 to 10). At `1`, an event with
+     * deltaY = 5 zooms by about 2%; at `2.5`, about 5%, which is close to how map apps feel.
+     *
+     * @default 1
+     */
+    trackpadPinchSpeed?: number;
 
     /**
    * zooms on wheel spin (use this as an alternative to drag.options.wheel)
@@ -95,6 +110,7 @@ const DEFAULT_WHEEL_OPTIONS: Required<IWheelOptions> = {
     axis: 'all',
     keyToPress: null,
     trackpadPinch: false,
+    trackpadPinchSpeed: 1,
     wheelZoom: true,
 };
 
@@ -263,7 +279,7 @@ export class Wheel extends Plugin
         const point = this.parent.input.getPointerPosition(e);
         const step
       = (-e.deltaY * (e.deltaMode ? this.options.lineHeight : 1)) / 200;
-        const change = Math.pow(2, (1 + this.options.percent) * step);
+        const change = Math.pow(2, (1 + this.options.percent) * this.options.trackpadPinchSpeed * step);
 
         let oldPoint: PointData | undefined;
 
