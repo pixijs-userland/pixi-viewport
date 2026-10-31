@@ -138,12 +138,16 @@ describe('Viewport', () =>
         expect(viewport.hitArea?.contains(100, 300)).toBe(true);
     });
 
-    it('updates the hit area to the visible bounds', () =>
+    it('updates the hit area to the visible bounds, reusing one rectangle', () =>
     {
         const { viewport } = createViewport();
 
+        frames(viewport);
+        const hitArea = viewport.hitArea;
+
         viewport.moveCorner(300, 400);
         frames(viewport);
+        expect(viewport.hitArea).toBe(hitArea);
         expect(viewport.hitArea?.contains(310, 410)).toBe(true);
         expect(viewport.hitArea?.contains(290, 410)).toBe(false);
     });

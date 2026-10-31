@@ -93,6 +93,14 @@ export class Follow extends Plugin
             return;
         }
 
+        // a destroyed target has no position (pixi clears it), so stop following
+        if (this.target.destroyed)
+        {
+            this.parent.plugins.remove('follow');
+
+            return;
+        }
+
         const center = this.parent.center;
         const target = this.getTargetPosition();
         let toX = target.x;

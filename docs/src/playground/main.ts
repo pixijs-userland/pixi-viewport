@@ -72,7 +72,7 @@ function buildWorld(): void
 
     if (preset.world === 'timeline')
     {
-        buildTimeline(viewport, preset.worldWidth, preset.worldHeight);
+        target = buildTimeline(viewport, app.ticker, preset.worldWidth, preset.worldHeight).target;
         viewport.fitHeight(preset.worldHeight);
         viewport.scale.x = viewport.scale.y * 0.4;
         viewport.moveCorner(0, 0);
@@ -246,14 +246,30 @@ function loadPreset(name: string): void
 eventLog(viewport, document.querySelector('.event-panel ol') as HTMLOListElement);
 viewport.on('clicked', (event) => ripple(viewport, app.ticker, event.world.x, event.world.y));
 
-app.ticker.add(() =>
-{
-    const center = viewport.center;
+// update the stats a few times a second, and only touch the DOM when they change
+let hudText = '';
+let hudTime = 0;
 
-    hud.innerHTML = `scale <strong>${viewport.scale.x.toFixed(2)}</strong>`
+app.ticker.add((ticker) =>
+{
+    hudTime += ticker.deltaMS;
+    if (hudTime < 200)
+    {
+        return;
+    }
+    hudTime = 0;
+
+    const center = viewport.center;
+    const text = `scale <strong>${viewport.scale.x.toFixed(2)}</strong>`
         + `${viewport.scale.x === viewport.scale.y ? '' : ` × <strong>${viewport.scale.y.toFixed(2)}</strong>`}`
         + ` · center <strong>${Math.round(center.x)}, ${Math.round(center.y)}</strong>`
         + ` · <strong>${Math.round(app.ticker.FPS)}</strong> fps`;
+
+    if (text !== hudText)
+    {
+        hudText = text;
+        hud.innerHTML = text;
+    }
 });
 
 window.addEventListener('hashchange', () =>

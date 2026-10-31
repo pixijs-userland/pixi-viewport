@@ -262,8 +262,17 @@ export class InputManager
             return;
         }
 
+        // our 'wheel' listener can be removed by app code (e.g., viewport.off('wheel')); if it was, add it back and
+        // skip the check for this event, since it can't tell whether a child stopped it
+        const listening = this.viewport.listeners('wheel').includes(this.wheelBubble);
+
+        if (!listening)
+        {
+            this.viewport.on('wheel', this.wheelBubble, this);
+        }
+
         // a child of the viewport stopped propagation of pixi's wheel event before it reached the viewport
-        if (this.wheelCaptured === event && this.wheelBubbled !== event)
+        if (listening && this.wheelCaptured === event && this.wheelBubbled !== event)
         {
             // the child used the wheel, so the page shouldn't scroll either (pixi's own wheel listener is passive,
             // so the child can't prevent it)

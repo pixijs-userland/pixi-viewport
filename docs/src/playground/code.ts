@@ -8,7 +8,8 @@ function value(v: OptionValue): string
     return typeof v === 'string' ? `'${v}'` : String(v);
 }
 
-function options(values: Record<string, OptionValue>): string
+/** Formats an options object the way it would be written in code, e.g. `{ wheel: false }` */
+export function options(values: Record<string, OptionValue>): string
 {
     const entries = Object.entries(values);
 

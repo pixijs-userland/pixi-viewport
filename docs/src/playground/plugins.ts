@@ -105,7 +105,7 @@ export const PLUGINS = {
     },
     follow: {
         method: 'follow',
-        description: 'follow the star',
+        description: 'follow the star (or the timeline playhead)',
         options: {
             speed: { libraryDefault: 0, min: 0, max: 30, step: 1 },
             radius: { libraryDefault: null, min: 0, max: 600, step: 25, off: 0 },

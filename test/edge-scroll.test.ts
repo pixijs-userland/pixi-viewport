@@ -122,6 +122,42 @@ describe('EdgeScroll', () =>
         expect(moved).toHaveBeenCalledWith(expect.objectContaining({ type: 'edge-scroll' }));
     });
 
+    it('emits edge-scroll-end when removed or paused while scrolling', () =>
+    {
+        const { viewport } = createViewport();
+        const end = vi.fn();
+
+        viewport.on('edge-scroll-end', end);
+        viewport.edgeScroll({ distance: 20 });
+        hover(viewport, 5, 300);
+        frames(viewport);
+        viewport.plugins.pause('edge-scroll');
+        expect(end).toHaveBeenCalledTimes(1);
+
+        viewport.plugins.resume('edge-scroll');
+        hover(viewport, 5, 300);
+        frames(viewport);
+        viewport.plugins.remove('edge-scroll');
+        expect(end).toHaveBeenCalledTimes(2);
+    });
+
+    it('measures the radius from the center of the viewport on screen', () =>
+    {
+        const { viewport, stage } = createViewport();
+
+        // the viewport is drawn 200px to the right, so its center on screen is x = 600
+        stage.position.set(200, 0);
+        viewport.edgeScroll({ radius: 100, speed: 600 });
+        viewport.moveCenter(1000, 1000);
+        hover(viewport, 650, SCREEN_HEIGHT / 2);
+        frames(viewport, 1, 1000);
+        expect(viewport.center.x).toBeCloseTo(1000);
+
+        hover(viewport, 800, SCREEN_HEIGHT / 2);
+        frames(viewport, 1, 1000);
+        expect(viewport.center.x).toBeCloseTo(1600);
+    });
+
     it('ignores the pointer while a button is pressed unless allowButtons is set', () =>
     {
         const { viewport } = createViewport();
@@ -184,6 +220,19 @@ describe('MouseEdges (deprecated)', () =>
         hover(viewport, 5, 300);
         frames(viewport, 1, 1000);
         expect(viewport.center.x).toBeCloseTo(1000 - (8 * 8 * 0.06));
+    });
+
+    it('emits mouse-edge-end when removed while scrolling', () =>
+    {
+        const { viewport } = createViewport();
+        const end = vi.fn();
+
+        viewport.on('mouse-edge-end', end);
+        viewport.mouseEdges({ distance: 20 });
+        hover(viewport, 5, 300);
+        frames(viewport);
+        viewport.plugins.remove('mouse-edges');
+        expect(end).toHaveBeenCalledTimes(1);
     });
 
     it('emits mouse-edge-start and mouse-edge-end (#416)', () =>

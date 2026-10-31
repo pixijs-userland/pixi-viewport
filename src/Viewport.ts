@@ -302,7 +302,8 @@ export class Viewport extends Container
 
             if (!this.forceHitArea)
             {
-                this._hitAreaDefault = this.getVisibleBounds();
+                // reuse one rectangle instead of allocating a new one every frame
+                this._hitAreaDefault = this.getVisibleBounds(this._hitAreaDefault);
                 this.hitArea = this._hitAreaDefault;
             }
 
@@ -382,13 +383,19 @@ export class Viewport extends Container
         this.plugins.resize();
     }
 
-    /** Get visible world bounds of viewport (normalized so width and height are positive when scale is negative) */
-    public getVisibleBounds(): Rectangle
+    /**
+     * Get visible world bounds of viewport (normalized so width and height are positive when scale is negative)
+     *
+     * @param out - rectangle to write into instead of creating a new one
+     */
+    public getVisibleBounds(out: Rectangle = new Rectangle()): Rectangle
     {
-        const x = Math.min(this.left, this.right);
-        const y = Math.min(this.top, this.bottom);
+        out.x = Math.min(this.left, this.right);
+        out.y = Math.min(this.top, this.bottom);
+        out.width = Math.abs(this.worldScreenWidth);
+        out.height = Math.abs(this.worldScreenHeight);
 
-        return new Rectangle(x, y, Math.abs(this.worldScreenWidth), Math.abs(this.worldScreenHeight));
+        return out;
     }
 
     /** Change coordinates from screen to world */

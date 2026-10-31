@@ -136,10 +136,10 @@ export class EdgeScroll extends Plugin
 
         if (this.options.radius !== null)
         {
-            const centerX = this.parent.screenWidth / 2;
-            const centerY = this.parent.screenHeight / 2;
-            const dx = x - centerX;
-            const dy = y - centerY;
+            // the center of the viewport's screen area, in the same (renderer) coordinates as event.global
+            const center = this.parent.toScreen(this.parent.center);
+            const dx = x - center.x;
+            const dy = y - center.y;
 
             if ((dx * dx) + (dy * dy) >= this.options.radius * this.options.radius)
             {
@@ -221,6 +221,28 @@ export class EdgeScroll extends Plugin
             center.y += (this.directionY * distance) / this.parent.scale.y;
             this.parent.moveCenter(center);
             this.parent.emit('moved', { viewport: this.parent, type: 'edge-scroll' });
+        }
+    }
+
+    public override pause(): void
+    {
+        this.end();
+        super.pause();
+    }
+
+    public override destroy(): void
+    {
+        this.end();
+    }
+
+    /** Stops scrolling without handing off to decelerate, and emits edge-scroll-end if it was scrolling */
+    protected end(): void
+    {
+        this.directionX = this.directionY = 0;
+        if (this.scrolling)
+        {
+            this.scrolling = false;
+            this.parent.emit('edge-scroll-end', this.parent);
         }
     }
 

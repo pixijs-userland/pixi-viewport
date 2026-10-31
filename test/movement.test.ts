@@ -136,6 +136,20 @@ describe('Follow', () =>
         expect(last).toBeGreaterThan(0);
     });
 
+    it('stops following a destroyed target instead of throwing', () =>
+    {
+        const { viewport } = createViewport();
+        const target = viewport.addChild(new Container());
+
+        target.position.set(700, 900);
+        viewport.follow(target);
+        frames(viewport);
+        target.destroy();
+
+        expect(() => frames(viewport, 3)).not.toThrow();
+        expect(viewport.plugins.get('follow')).toBeUndefined();
+    });
+
     it('waits until the target leaves the radius', () =>
     {
         const { viewport } = createViewport();

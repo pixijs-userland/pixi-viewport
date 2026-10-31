@@ -291,6 +291,28 @@ export class MouseEdges extends Plugin
         return false;
     }
 
+    public override pause(): void
+    {
+        this.end();
+        super.pause();
+    }
+
+    public override destroy(): void
+    {
+        this.end();
+    }
+
+    /** Stops scrolling and emits mouse-edge-end if it was scrolling */
+    protected end(): void
+    {
+        this.horizontal = this.vertical = null;
+        if (this.scrolling)
+        {
+            this.scrolling = false;
+            this.parent.emit('mouse-edge-end', this.parent);
+        }
+    }
+
     public update(): void
     {
         if (this.paused)

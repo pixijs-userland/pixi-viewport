@@ -4,7 +4,7 @@ import { Application, Ticker } from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { header } from '../shared/header';
 import { buildMap } from '../shared/world';
-import { highlight } from '../playground/code';
+import { highlight, options } from '../playground/code';
 
 header();
 
@@ -44,21 +44,25 @@ viewport.moveCenter(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
 
 function apply(): void
 {
-    const drag = pageWheel.checked
-        ? oneFinger.checked ? `{ wheel: false, disableOneFingerDrag: true }` : `{ wheel: false }`
-        : oneFinger.checked ? `{ disableOneFingerDrag: true }` : '';
-    const wheel = pageWheel.checked
-        ? `{ wheelZoom: false, trackpadPinch: true, trackpadPinchSpeed: 2.5 }`
-        : `{ trackpadPinch: true, trackpadPinchSpeed: 2.5 }`;
+    // one set of options drives both the viewport and the code shown on the page (only non-default values)
+    const drag = {
+        ...(pageWheel.checked ? { wheel: false } : {}),
+        ...(oneFinger.checked ? { disableOneFingerDrag: true } : {}),
+    };
+    const wheel = {
+        ...(pageWheel.checked ? { wheelZoom: false } : {}),
+        trackpadPinch: true,
+        trackpadPinchSpeed: 2.5,
+    };
 
     // pixi sets touch-action: none on the canvas; pan-y lets the browser scroll the page with one finger
     app.canvas.style.touchAction = oneFinger.checked ? 'pan-y' : 'none';
 
     viewport.plugins.removeAll();
     viewport
-        .drag({ wheel: !pageWheel.checked, disableOneFingerDrag: oneFinger.checked })
+        .drag(drag)
         .pinch()
-        .wheel({ wheelZoom: !pageWheel.checked, trackpadPinch: true, trackpadPinchSpeed: 2.5 })
+        .wheel(wheel)
         .decelerate()
         .clamp({ direction: 'all' })
         .clampZoom({ minScale: viewport.findFit(WORLD_WIDTH, WORLD_HEIGHT), maxScale: 4 });
@@ -72,9 +76,9 @@ function apply(): void
         `})`,
         ``,
         `viewport`,
-        `    .drag(${drag})`,
+        `    .drag(${options(drag)})`,
         `    .pinch()`,
-        `    .wheel(${wheel})`,
+        `    .wheel(${options(wheel)})`,
         `    .decelerate()`,
         `    .clamp({ direction: 'all' })`,
         `    .clampZoom({ minScale: viewport.findFit(${WORLD_WIDTH}, ${WORLD_HEIGHT}), maxScale: 4 })`,

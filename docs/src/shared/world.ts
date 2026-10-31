@@ -20,14 +20,7 @@ onThemeChange(() =>
 {
     for (const label of labels)
     {
-        if (label.destroyed)
-        {
-            labels.delete(label);
-        }
-        else
-        {
-            label.style.fill = labelColor();
-        }
+        label.style.fill = labelColor();
     }
 });
 
@@ -36,6 +29,7 @@ function themedLabel(text: string, fontSize: number): Text
     const label = new Text({ text, style: { fontFamily: 'system-ui, sans-serif', fontSize, fill: labelColor() } });
 
     labels.add(label);
+    label.once('destroyed', () => labels.delete(label));
 
     return label;
 }
@@ -183,7 +177,8 @@ function wanderer(ticker: Ticker, random: Random, width: number, height: number)
 }
 
 /** A long horizontal timeline with tracks of clips, for single-axis zooming */
-export function buildTimeline(viewport: Viewport, width: number, height: number): void
+/** A long horizontal timeline with tracks of clips and a moving playhead (the follow target) */
+export function buildTimeline(viewport: Viewport, ticker: Ticker, width: number, height: number): MapWorld
 {
     const random = new Random(3);
     const ruler = new Graphics();
@@ -229,6 +224,38 @@ export function buildTimeline(viewport: Viewport, width: number, height: number)
     }
 
     viewport.addChild(border(width, height));
+
+    const playhead = new Graphics()
+        .moveTo(0, 0)
+        .lineTo(0, height)
+        .stroke({ width: 4, color: 0xe91e63 })
+        .poly([-12, 0, 12, 0, 0, 16])
+        .fill(0xe91e63);
+    const speed = 0.2; // world pixels per millisecond
+
+    playhead.position.set(0, 0);
+    viewport.addChild(playhead);
+
+    const update = (t: Ticker): void =>
+    {
+        if (playhead.destroyed)
+        {
+            ticker.remove(update);
+
+            return;
+        }
+        playhead.x = (playhead.x + (speed * t.deltaMS)) % width;
+    };
+
+    ticker.add(update);
+
+    // follow uses the target's position as the center of the view, so center it vertically
+    const target = new Container();
+
+    target.position.set(0, height / 2);
+    playhead.addChild(target);
+
+    return { target };
 }
 
 /** Shows an expanding ring at a world position, e.g., where the viewport was clicked */
@@ -243,19 +270,24 @@ export function ripple(viewport: Viewport, ticker: Ticker, x: number, y: number)
 
     const update = (t: Ticker): void =>
     {
+        // the world can be rebuilt (destroying the ring) while it's still animating
+        if (ring.destroyed)
+        {
+            ticker.remove(update);
+
+            return;
+        }
+
         time += t.deltaMS;
         const progress = Math.min(time / duration, 1);
 
         // keep the ring the same size on screen at any zoom
         ring.scale.set((1 + (progress * 1.5)) / viewport.scale.x, (1 + (progress * 1.5)) / viewport.scale.y);
         ring.alpha = 1 - progress;
-        if (progress === 1 || ring.destroyed)
+        if (progress === 1)
         {
             ticker.remove(update);
-            if (!ring.destroyed)
-            {
-                ring.destroy();
-            }
+            ring.destroy();
         }
     };
 

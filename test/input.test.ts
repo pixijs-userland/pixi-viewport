@@ -121,6 +121,25 @@ describe('InputManager', () =>
             expect(viewport.scale.x).toBeGreaterThan(1);
         });
 
+        it('still zooms after app code removes its own wheel listeners', () =>
+        {
+            const { viewport, canvas } = createViewport();
+
+            viewport.wheel();
+            viewport.on('wheel', () => { /* app listener */ });
+            viewport.off('wheel');
+
+            // pixi still dispatches the capture phase, but nothing is listening for the bubble anymore
+            const event = new WheelEvent('wheel', { deltaY: -100, clientX: 100, clientY: 100 });
+
+            viewport.emit('wheelcapture', { nativeEvent: event } as unknown as FederatedWheelEvent);
+            canvas.dispatchEvent(event);
+            expect(viewport.scale.x).toBeGreaterThan(1);
+
+            // and the listener is back, so child stopPropagation() works again
+            expect(viewport.listeners('wheel').length).toBe(1);
+        });
+
         it('keeps the page from scrolling when a child used the wheel and passiveWheel is false', () =>
         {
             const { viewport, canvas } = createViewport({ passiveWheel: false });
