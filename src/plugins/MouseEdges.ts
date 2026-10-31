@@ -3,7 +3,11 @@ import { Plugin } from './Plugin.js';
 import type { FederatedPointerEvent } from 'pixi.js';
 import type { Viewport } from '../Viewport.js';
 
-/** Insets for mouse edges scrolling regions */
+/**
+ * Insets for mouse edges scrolling regions
+ *
+ * @category Plugin options
+ */
 export interface IMouseEdgesInsets
 {
     /** Distance from center of screen in screen pixels */
@@ -29,6 +33,8 @@ export interface IMouseEdgesInsets
  * Options for {@link MouseEdges}.
  *
  * @deprecated use {@link IEdgeScrollOptions} with `viewport.edgeScroll()` instead
+ *
+ * @category Plugin options
  */
 export interface IMouseEdgesOptions extends IMouseEdgesInsets
 {
@@ -83,6 +89,8 @@ const MOUSE_EDGES_OPTIONS: Required<IMouseEdgesOptions> = {
  *
  * @event mouse-edge-start(Viewport) emitted when mouse-edge starts
  * @event mouse-edge-end(Viewport) emitted when mouse-edge ends
+ *
+ * @category Plugins
  */
 export class MouseEdges extends Plugin
 {

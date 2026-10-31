@@ -19,6 +19,8 @@ import type { Decelerate } from './Decelerate.js';
  * 3. combination of top/bottom/center and left/right/center (case insensitive) =
  *    the world is stuck to the appropriate boundaries
  *
+ *
+ * @category Plugin options
  */
 export interface IClampOptions
 {
@@ -78,6 +80,8 @@ const DEFAULT_CLAMP_OPTIONS: Required<IClampOptions> = {
  * Plugin to clamp the viewport to a specific world bounding box.
  *
  * @public
+ *
+ * @category Plugins
  */
 export class Clamp extends Plugin
 {

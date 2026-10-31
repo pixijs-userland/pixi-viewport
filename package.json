@@ -67,6 +67,8 @@
         "lint-staged": "13.1.0",
         "pixi.js": "8.22.0",
         "typedoc": "0.28.20",
+        "typedoc-github-theme": "0.4.0",
+        "typedoc-plugin-mdn-links": "5.1.1",
         "typescript": "5.6.2",
         "vite": "8.3.5",
         "vite-plugin-dts": "5.1.2",

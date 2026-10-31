@@ -5,6 +5,8 @@ import type { Viewport } from '../Viewport.js';
  * Derive this class to create user-defined plugins
  *
  * @public
+ *
+ * @category Plugins
  */
 export class Plugin
 {

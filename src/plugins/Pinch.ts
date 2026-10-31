@@ -5,7 +5,11 @@ import type { FederatedPointerEvent, PointData } from 'pixi.js';
 import type { IViewportTouch } from '../InputManager.js';
 import type { Viewport } from '../Viewport.js';
 
-/** Options for {@link Pinch}. */
+/**
+ * Options for {@link Pinch}.
+ *
+ * @category Plugin options
+ */
 export interface IPinchOptions
 {
     /** Disable two-finger dragging. */
@@ -46,6 +50,8 @@ const SCRATCH_POINT = new Point();
  * Plugin for enabling two-finger pinching (or dragging).
  *
  * @public
+ *
+ * @category Plugins
  */
 export class Pinch extends Plugin
 {

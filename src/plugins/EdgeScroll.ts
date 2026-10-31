@@ -4,7 +4,11 @@ import type { FederatedPointerEvent } from 'pixi.js';
 import type { Viewport } from '../Viewport.js';
 import type { IMouseEdgesInsets } from './MouseEdges.js';
 
-/** Options for {@link EdgeScroll}. */
+/**
+ * Options for {@link EdgeScroll}.
+ *
+ * @category Plugin options
+ */
 export interface IEdgeScrollOptions extends IMouseEdgesInsets
 {
     /**
@@ -53,6 +57,8 @@ const DEFAULT_EDGE_SCROLL_OPTIONS: Required<IEdgeScrollOptions> = {
  * @event edge-scroll-start(Viewport) emitted when edge scrolling starts
  * @event edge-scroll-end(Viewport) emitted when edge scrolling ends
  * @public
+ *
+ * @category Plugins
  */
 export class EdgeScroll extends Plugin
 {

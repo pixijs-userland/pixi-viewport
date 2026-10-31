@@ -4,7 +4,11 @@ import { Plugin } from './Plugin.js';
 import type { Point } from 'pixi.js';
 import type { Viewport } from '../Viewport.js';
 
-/** Options for {@link SnapZoom}. */
+/**
+ * Options for {@link SnapZoom}.
+ *
+ * @category Plugin options
+ */
 export interface ISnapZoomOptions
 {
     /** the desired width to snap (to maintain aspect ratio, choose only width or height) */
@@ -79,6 +83,8 @@ const DEFAULT_SNAP_ZOOM_OPTIONS: Required<ISnapZoomOptions> = {
  * @event snap-zoom-start(Viewport) emitted each time a fit animation starts
  * @event snap-zoom-end(Viewport) emitted each time fit reaches its target
  * @event snap-zoom-end(Viewport) emitted each time fit reaches its target
+ *
+ * @category Plugins
  */
 export class SnapZoom extends Plugin
 {

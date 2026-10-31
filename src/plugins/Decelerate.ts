@@ -3,6 +3,7 @@ import { Plugin } from './Plugin.js';
 
 import type { Viewport } from '../Viewport.js';
 
+/** @category Plugin options */
 export interface IDecelerateOptions
 {
     /**
@@ -27,7 +28,11 @@ export interface IDecelerateOptions
     minSpeed?: number;
 }
 
-/** Viewport position snapshot that's saved by {@link Decelerate} to estimate panning velocity. */
+/**
+ * Viewport position snapshot that's saved by {@link Decelerate} to estimate panning velocity.
+ *
+ * @category Advanced
+ */
 export interface IDecelerateSnapshot
 {
     /** x-coordinate of the viewport. */
@@ -58,6 +63,8 @@ const TP = 16;
  * Plugin to decelerate viewport velocity smoothly after panning ends.
  *
  * @public
+ *
+ * @category Plugins
  */
 export class Decelerate extends Plugin
 {

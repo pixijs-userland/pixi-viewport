@@ -3,7 +3,11 @@ import { Plugin } from './Plugin.js';
 import type { Container, PointData } from 'pixi.js';
 import type { Viewport } from '../Viewport.js';
 
-/** Options for {@link Follow}. */
+/**
+ * Options for {@link Follow}.
+ *
+ * @category Plugin options
+ */
 export interface IFollowOptions
 {
     /**
@@ -39,6 +43,8 @@ const DEFAULT_FOLLOW_OPTIONS: Required<IFollowOptions> = {
  *
  * @see Viewport.follow
  * @public
+ *
+ * @category Plugins
  */
 export class Follow extends Plugin
 {

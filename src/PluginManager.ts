@@ -37,6 +37,8 @@ const PLUGIN_ORDER = [
  * Use this to access current plugins or add user-defined plugins
  *
  * @public
+ *
+ * @category Viewport
  */
 export class PluginManager
 {

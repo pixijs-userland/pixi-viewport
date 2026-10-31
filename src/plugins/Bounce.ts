@@ -7,7 +7,11 @@ import type { IDecelerateOptions } from './Decelerate.js';
 import type { Drag } from './Drag.js';
 import type { Pinch } from './Pinch.js';
 
-/** Options for {@link Bounce}. */
+/**
+ * Options for {@link Bounce}.
+ *
+ * @category Plugin options
+ */
 export interface IBounceOptions
 {
     /** "all", "horizontal", "vertical", or combination of "top", "bottom", "right", "left" (e.g., 'top-bottom-right') */
@@ -33,7 +37,11 @@ export interface IBounceOptions
     underflow?: 'center' | string;
 }
 
-/** Bounce state along an axis */
+/**
+ * Bounce state along an axis
+ *
+ * @category Advanced
+ */
 export interface IBounceState
 {
     /** Elapsed time since bounce started */
@@ -64,6 +72,8 @@ const DEFAULT_BOUNCE_OPTIONS: Required<IBounceOptions> = {
  * @fires bounce-start-y
  * @fires bounce-end-y
  * @public
+ *
+ * @category Plugins
  */
 export class Bounce extends Plugin
 {

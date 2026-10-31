@@ -18,7 +18,11 @@ import {
     MouseEdges, Pinch, Snap, SnapZoom, Wheel,
 } from './plugins/index.js';
 
-/** Options for {@link Viewport}. */
+/**
+ * Options for {@link Viewport}.
+ *
+ * @category Viewport
+ */
 export interface IViewportOptions
 {
     /** @default window.innerWidth */
@@ -97,6 +101,7 @@ export interface IViewportOptions
     ticker?: Ticker;
 }
 
+/** @category Advanced */
 export interface ICompleteViewportOptions extends IViewportOptions
 {
     screenWidth: number;
@@ -108,6 +113,7 @@ export interface ICompleteViewportOptions extends IViewportOptions
     ticker: Ticker;
 }
 
+/** @category Advanced */
 export interface IViewportTransformState
 {
     x: number;
@@ -133,41 +139,44 @@ const DEFAULT_VIEWPORT_OPTIONS: Partial<ICompleteViewportOptions> = {
 };
 
 /**
- * Main class to use when creating a Viewport
+ * A {@link Container} that acts as a 2D camera: add your world to it, then turn on plugins for the interactions you
+ * want (drag, pinch, wheel, clamp, and so on).
  *
- * @public
- * @fires clicked
- * @fires drag-start
- * @fires drag-end
- * @fires drag-remove
- * @fires pinch-start
- * @fires pinch-end
- * @fires pinch-remove
- * @fires snap-start
- * @fires snap-end
- * @fires snap-remove
- * @fires snap-zoom-start
- * @fires snap-zoom-end
- * @fires snap-zoom-remove
- * @fires bounce-x-start
- * @fires bounce-x-end
- * @fires bounce-y-start
- * @fires bounce-y-end
- * @fires bounce-remove
- * @fires wheel-start
- * @fires wheel-remove
- * @fires wheel-scroll
- * @fires wheel-scroll-remove
- * @fires mouse-edge-start
- * @fires mouse-edge-end
- * @fires mouse-edge-remove
- * @fires edge-scroll-start
- * @fires edge-scroll-end
- * @fires moved
- * @fires moved-end
- * @fires zoomed
- * @fires zoomed-end
- * @fires frame-end
+ * ```ts
+ * const viewport = new Viewport({ worldWidth: 2000, worldHeight: 2000, events: app.renderer.events });
+ *
+ * app.stage.addChild(viewport);
+ * viewport.drag().pinch().wheel().decelerate();
+ * ```
+ *
+ * Plugins always run in a fixed order, whatever order you add them in. Use {@link Viewport.plugins} to pause,
+ * resume, or remove them, or to add your own {@link Plugin}.
+ *
+ * ## Events
+ *
+ * Listen with `viewport.on(name, callback)`. These are in addition to pixi's own {@link Container} events.
+ *
+ * | Event | Callback receives | When |
+ * | --- | --- | --- |
+ * | `clicked` | {@link ClickedEvent} | a pointer is pressed and released without moving past the threshold |
+ * | `drag-start`, `drag-end` | {@link DragEvent} | a drag starts or ends |
+ * | `pinch-start`, `pinch-end` | `Viewport` | a two-finger pinch starts or ends |
+ * | `wheel-start` | {@link WheelStartEvent} | the wheel or a trackpad pinch zooms |
+ * | `wheel-scroll` | `Viewport` | the wheel scrolls (drag plugin with `wheel: true`) |
+ * | `snap-start`, `snap-end` | `Viewport` | {@link Viewport.snap} starts or finishes |
+ * | `snap-zoom-start`, `snap-zoom-end` | `Viewport` | {@link Viewport.snapZoom} starts or finishes |
+ * | `bounce-x-start`, `bounce-x-end`, `bounce-y-start`, `bounce-y-end` | `Viewport` | a bounce starts or ends |
+ * | `edge-scroll-start`, `edge-scroll-end` | `Viewport` | {@link Viewport.edgeScroll} starts or stops scrolling |
+ * | `mouse-edge-start`, `mouse-edge-end` | `Viewport` | the deprecated {@link Viewport.mouseEdges} starts or stops |
+ * | `animate-end` | `Viewport` | {@link Viewport.animate} finishes |
+ * | `moved` | {@link MovedEvent} | the viewport moves (every frame while moving) |
+ * | `zoomed` | {@link ZoomedEvent} | the viewport zooms (every frame while zooming) |
+ * | `moved-end`, `zoomed-end` | `Viewport` | moving or zooming stops |
+ * | `frame-end` | `Viewport` | after each update |
+ * | `plugin-remove` | `string` (plugin name) | a plugin is removed |
+ *
+ * Inherited {@link Container} members aren't listed here; see pixi's documentation.
+ * @category Viewport
  */
 export class Viewport extends Container
 {
@@ -203,23 +212,8 @@ export class Viewport extends Container
     private _disableOnContextMenu = (e: MouseEvent) => e.preventDefault();
 
     /**
-     * @param {IViewportOptions} options
-     * @param {number} [options.screenWidth=window.innerWidth]
-     * @param {number} [options.screenHeight=window.innerHeight]
-     * @param {number} [options.worldWidth=this.width]
-     * @param {number} [options.worldHeight=this.height]
-     * @param {number} [options.threshold=5] number of pixels to move to trigger an input event (e.g., drag, pinch)
-     * or disable a clicked event
-     * @param {boolean} [options.passiveWheel=true] whether the 'wheel' event is set to passive (note: if false,
-     * e.preventDefault() will be called when wheel is used over the viewport)
-     * @param {boolean} [options.stopPropagation=false] whether to stopPropagation of events that impact the viewport
-     * (except wheel events, see options.passiveWheel)
-     * @param {HitArea} [options.forceHitArea] change the default hitArea from world size to a new value
-     * @param {boolean} [options.noTicker] set this if you want to manually call update() function on each frame
-     * @param {PIXI.Ticker} [options.ticker=PIXI.Ticker.shared] use this PIXI.ticker for updates
-     * @param {PIXI.EventSystem} [options.events] EventSystem available from app.events or added manually and passed here
-     * location on screen
-     * @param {boolean} [options.disableOnContextMenu] remove oncontextmenu=() => {} from the pixi's events.domElement
+     * @param {IViewportOptions} options - see {@link IViewportOptions}; `events` (pixi's `app.renderer.events`) is
+     *  required for input
      */
     constructor(options: IViewportOptions)
     {
@@ -864,18 +858,6 @@ export class Viewport extends Container
      * Returns zoom to the desired scale
      *
      * @param {ISnapZoomOptions} options
-     * @param {number} [options.width=0] - the desired width to snap (to maintain aspect ratio, choose width or height)
-     * @param {number} [options.height=0] - the desired height to snap (to maintain aspect ratio, choose width or height)
-     * @param {number} [options.time=1000] - time for snapping in ms
-     * @param {(string|function)} [options.ease=easeInOutSine] ease function or name (see http://easings.net/
-     *   for supported names)
-     * @param {PIXI.Point} [options.center] - place this point at center during zoom instead of center of the viewport
-     * @param {boolean} [options.interrupt=true] - pause snapping with any user input on the viewport
-     * @param {boolean} [options.removeOnComplete] - removes this plugin after snapping is complete
-     * @param {boolean} [options.removeOnInterrupt] - removes this plugin if interrupted by any user input
-     * @param {boolean} [options.forceStart] - starts the snap immediately regardless of whether the viewport is at the
-     *   desired zoom
-     * @param {boolean} [options.noMove] - zoom but do not move
      */
     snapZoom(options?: ISnapZoomOptions): Viewport
     {
@@ -991,23 +973,7 @@ export class Viewport extends Container
      * NOTE: if you expect users to use right-click dragging, you should enable `viewport.options.disableOnContextMenu`
      * to avoid the context menu popping up on each right-click drag.
      *
-     * @param {IDragOptions} [options]
-     * @param {string} [options.direction=all] direction to drag
-     * @param {boolean} [options.pressDrag=true] whether click to drag is active
-     * @param {boolean} [options.wheel=true] use wheel to scroll in direction (unless wheel plugin is active)
-     * @param {number} [options.wheelScroll=1] number of pixels to scroll with each wheel spin
-     * @param {boolean} [options.reverse] reverse the direction of the wheel scroll
-     * @param {(boolean|string)} [options.clampWheel=false] clamp wheel(to avoid weird bounce with mouse wheel)
-     * @param {string} [options.underflow=center] where to place world if too small for screen
-     * @param {number} [options.factor=1] factor to multiply drag to increase the speed of movement
-     * @param {string} [options.mouseButtons=all] changes which mouse buttons trigger drag, use: 'all', 'left',
-     *  'right' 'middle', or some combination, like, 'middle-right'; you may want to set
-     *   viewport.options.disableOnContextMenu if you want to use right-click dragging
-     * @param {string[]} [options.keyToPress=null] - array containing
-     *  [KeyboardEvent.code](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code) values of keys that can be
-     *  pressed for the drag to be triggered, e.g.: ['ShiftLeft', 'ShiftRight'}.
-     * @param {boolean} [options.ignoreKeyToPressOnTouch=false] - ignore keyToPress for touch events
-     * @param {number} [options.lineHeight=20] - scaling factor for non-DOM_DELTA_PIXEL scrolling events
+     * @param {IDragOptions} [options] - options, see {@link IDragOptions}
      * @returns {Viewport} this
      */
     public drag(options?: IDragOptions): Viewport
@@ -1037,15 +1003,7 @@ export class Viewport extends Container
      *   clamp is disabled if called with no options; use { direction: 'all' } for all edge clamping
      *   screenWidth, screenHeight, worldWidth, and worldHeight needs to be set for this to work properly
      *
-     * @param {object} [options]
-     * @param {(number|boolean)} [options.left=false] - clamp left; true = 0
-     * @param {(number|boolean)} [options.right=false] - clamp right; true = viewport.worldWidth
-     * @param {(number|boolean)} [options.top=false] - clamp top; true = 0
-     * @param {(number|boolean)} [options.bottom=false] - clamp bottom; true = viewport.worldHeight
-     * @param {string} [options.direction] - (all, x, or y) using clamps of [0, viewport.worldWidth/viewport.worldHeight];
-     *  replaces left/right/top/bottom if set
-     * @param {string} [options.underflow=center] - where to place world if too small for screen (e.g., top-right, center,
-     *  none, bottomLeft)
+     * @param {IClampOptions} [options] - options, see {@link IClampOptions}
      * @returns {Viewport} this
      */
     public clamp(options?: IClampOptions): Viewport
@@ -1060,11 +1018,7 @@ export class Viewport extends Container
      *
      * NOTE: this fires 'moved' event during deceleration
      *
-     * @param {IDecelerateOptions} [options]
-     * @param {number} [options.friction=0.95] - percent to decelerate after movement
-     * @param {number} [options.bounce=0.8] - percent to decelerate when past boundaries (only applicable when
-     *   viewport.bounce() is active)
-     * @param {number} [options.minSpeed=0.01] - minimum velocity before stopping/reversing acceleration
+     * @param {IDecelerateOptions} [options] - options, see {@link IDecelerateOptions}
      * @return {Viewport} this
      */
     public decelerate(options?: IDecelerateOptions): Viewport
@@ -1079,17 +1033,7 @@ export class Viewport extends Container
      * NOTES:
      *    screenWidth, screenHeight, worldWidth, and worldHeight needs to be set for this to work properly
      *    fires 'moved', 'bounce-x-start', 'bounce-y-start', 'bounce-x-end', and 'bounce-y-end' events
-     * @param {object} [options]
-     * @param {string} [options.sides=all] - all, horizontal, vertical, or combination of top, bottom, right, left
-     *  (e.g., 'top-bottom-right')
-     * @param {number} [options.friction=0.5] - friction to apply to decelerate if active
-     * @param {number} [options.time=150] - time in ms to finish bounce
-     * @param {object} [options.bounceBox] - use this bounceBox ({ x, y, width, height }, in world coordinates) instead
-     *  of (0, 0, viewport.worldWidth, viewport.worldHeight)
-     * @param {string|function} [options.ease=easeInOutSine] - ease function or name
-     *  (see http://easings.net/ for supported names)
-     * @param {string} [options.underflow=center] - (top/bottom/center and left/right/center, or center)
-     *  where to place world if too small for screen
+     * @param {IBounceOptions} [options] - options, see {@link IBounceOptions}
      * @return {Viewport} this
      */
     public bounce(options?: IBounceOptions): Viewport
@@ -1102,12 +1046,7 @@ export class Viewport extends Container
     /**
      * Enable pinch to zoom and two-finger touch to drag
      *
-     * @param {PinchOptions} [options]
-     * @param {boolean} [options.noDrag] - disable two-finger dragging
-     * @param {number} [options.percent=1] - percent to modify pinch speed
-     * @param {number} [options.factor=1] - factor to multiply two-finger drag to increase the speed of movement
-     * @param {PIXI.Point} [options.center] - place this point at center during zoom instead of center of two fingers
-     * @param {('all'|'x'|'y')} [options.axis=all] - axis to zoom
+     * @param {IPinchOptions} [options] - options, see {@link IPinchOptions}
      * @return {Viewport} this
      */
     public pinch(options?: IPinchOptions): Viewport
@@ -1122,17 +1061,7 @@ export class Viewport extends Container
      *
      * @param {number} x
      * @param {number} y
-     * @param {ISnapOptions} [options]
-     * @param {boolean} [options.topLeft] - snap to the top-left of viewport instead of center
-     * @param {number} [options.friction=0.8] - friction/frame to apply if decelerate is active
-     * @param {number} [options.time=1000] - time in ms to snap
-     * @param {string|function} [options.ease=easeInOutSine] - ease function or name (see http://easings.net/
-     *   for supported names)
-     * @param {boolean} [options.interrupt=true] - pause snapping with any user input on the viewport
-     * @param {boolean} [options.removeOnComplete] - removes this plugin after snapping is complete
-     * @param {boolean} [options.removeOnInterrupt] - removes this plugin if interrupted by any user input
-     * @param {boolean} [options.forceStart] - starts the snap immediately regardless of whether the viewport is at
-     *   the desired location
+     * @param {ISnapOptions} [options] - options, see {@link ISnapOptions}
      * @return {Viewport} this
      */
     public snap(x: number, y: number, options?: ISnapOptions): Viewport
@@ -1154,12 +1083,7 @@ export class Viewport extends Container
      * @fires 'moved' event
      *
      * @param {PIXI.DisplayObject} target to follow
-     * @param {IFollowOptions} [options]
-     * @param {number} [options.speed=0] - to follow in pixels/frame (0=teleport to location)
-     * @param {number} [options.acceleration] - set acceleration to accelerate and decelerate at this rate; speed
-     *   cannot be 0 to use acceleration
-     * @param {number} [options.radius] - radius (in world coordinates) of center circle where movement is allowed
-     *   without moving the viewport     * @returns {Viewport} this
+     * @param {IFollowOptions} [options] - options, see {@link IFollowOptions}
      * @returns {Viewport} this
      */
     public follow(target: Container, options?: IFollowOptions): Viewport
@@ -1174,19 +1098,7 @@ export class Viewport extends Container
      *
      * NOTE: the default event listener for 'wheel' event is the options.events.domElement.
      *
-     * @param {IWheelOptions} [options]
-     * @param {number} [options.percent=0.1] - adjusts zoom speed (not the percent per spin): each wheel event
-     *   multiplies the scale by 2 ^ ((1 + percent) * -deltaY / 500), about 16.5% per mouse notch at the default;
-     *   use a negative value to zoom slower (see IWheelOptions.percent)
-     * @param {number} [options.smooth] - smooth the zooming by providing the number of frames to zoom between wheel spins
-     * @param {boolean} [options.interrupt=true] - stop smoothing with any user input on the viewport
-     * @param {boolean} [options.reverse] - reverse the direction of the scroll
-     * @param {PIXI.Point} [options.center] - place this point at center during zoom instead of current mouse position
-     * @param {number} [options.lineHeight=20] - scaling factor for non-DOM_DELTA_PIXEL scrolling events
-     * @param {('all'|'x'|'y')} [options.axis=all] - axis to zoom
-     * @param {boolean} [options.trackpadPinch=false] - zoom with a trackpad pinch (wheel events with ctrlKey)
-     * @param {number} [options.trackpadPinchSpeed=1] - multiplies trackpad pinch zoom speed without changing mouse
-     *   wheel zoom (2.5 feels close to map apps)
+     * @param {IWheelOptions} [options] - options, see {@link IWheelOptions}
      * @return {Viewport} this
      */
     public wheel(options?: IWheelOptions): Viewport
@@ -1200,18 +1112,6 @@ export class Viewport extends Container
      * Animate the position and/or scale of the viewport
      * To set the zoom level, use: (1) scale, (2) scaleX and scaleY, or (3) width and/or height
      * @param {object} options
-     * @param {number} [options.time=1000] - time to animate
-     * @param {PIXI.Point} [options.position=viewport.center] - position to move viewport
-     * @param {number} [options.width] - desired viewport width in world pixels (use instead of scale;
-     *  aspect ratio is maintained if height is not provided)
-     * @param {number} [options.height] - desired viewport height in world pixels (use instead of scale;
-     *  aspect ratio is maintained if width is not provided)
-     * @param {number} [options.scale] - scale to change zoom (scale.x = scale.y)
-     * @param {number} [options.scaleX] - independently change zoom in x-direction
-     * @param {number} [options.scaleY] - independently change zoom in y-direction
-     * @param {(function|string)} [options.ease=linear] - easing function to use
-     * @param {function} [options.callbackOnComplete]
-     * @param {boolean} [options.removeOnInterrupt] removes this plugin if interrupted by any user input
      * @returns {Viewport} this
      */
     public animate(options: IAnimateOptions): Viewport
@@ -1234,13 +1134,7 @@ export class Viewport extends Container
      * the world will not be able to zoom larger than the screen size (ie, zooming in so it appears
      * larger than the screen).
      *
-     * @param {object} [options]
-     * @param {number} [options.minWidth] - minimum width
-     * @param {number} [options.minHeight] - minimum height
-     * @param {number} [options.maxWidth] - maximum width
-     * @param {number} [options.maxHeight] - maximum height
-     * @param {number} [options.minScale] - minimum scale
-     * @param {number} [options.maxScale] - minimum scale
+     * @param {IClampZoomOptions} [options] - options, see {@link IClampZoomOptions}
      * @return {Viewport} this
      */
     public clampZoom(options: IClampZoomOptions): Viewport
@@ -1255,20 +1149,7 @@ export class Viewport extends Container
      *
      * NOTES: fires 'moved' event; there's a known bug where the mouseEdges does not work properly with "windowed" viewports
      *
-     * @param {IMouseEdgesOptions} [options]
-     * @param {number} [options.radius] - distance from center of screen in screen pixels
-     * @param {number} [options.distance] - distance from all sides in screen pixels
-     * @param {number} [options.top] - alternatively, set top distance (leave unset for no top scroll)
-     * @param {number} [options.bottom] - alternatively, set bottom distance (leave unset for no top scroll)
-     * @param {number} [options.left] - alternatively, set left distance (leave unset for no top scroll)
-     * @param {number} [options.right] - alternatively, set right distance (leave unset for no top scroll)
-     * @param {number} [options.speed=8] - scroll speed; the center moves speed * speed * 0.06 world pixels per update
-     *   (about 3.8 at the default; see IMouseEdgesOptions.speed)
-     * @param {boolean} [options.reverse] - reverse direction of scroll
-     * @param {boolean} [options.noDecelerate] - don't use decelerate plugin even if it's installed
-     * @param {boolean} [options.linear] - if using radius, use linear movement (+/- 1, +/- 1) instead of angled
-     *   movement (Math.cos(angle from center), Math.sin(angle from center))
-     * @param {boolean} [options.allowButtons] allows plugin to continue working even when there's a mousedown event
+     * @param {IMouseEdgesOptions} [options] - options, see {@link IMouseEdgesOptions}
      * @deprecated use {@link Viewport.edgeScroll} instead: its `speed` is in screen pixels per second, while
      *   mouseEdges' `speed` scrolls by speed * speed * 0.06 world pixels per frame (so it changes with zoom and frame rate).
      *   mouseEdges keeps its current behavior for compatibility.
@@ -1288,19 +1169,7 @@ export class Viewport extends Container
      *
      * NOTES: fires 'moved', 'edge-scroll-start', and 'edge-scroll-end' events
      *
-     * @param {IEdgeScrollOptions} [options]
-     * @param {number} [options.radius] - distance from center of screen in screen pixels
-     * @param {number} [options.distance] - distance from all sides in screen pixels
-     * @param {number} [options.top] - alternatively, set top distance (leave unset for no top scroll)
-     * @param {number} [options.bottom] - alternatively, set bottom distance (leave unset for no bottom scroll)
-     * @param {number} [options.left] - alternatively, set left distance (leave unset for no left scroll)
-     * @param {number} [options.right] - alternatively, set right distance (leave unset for no right scroll)
-     * @param {number} [options.speed=600] - scroll speed in screen pixels per second
-     * @param {boolean} [options.reverse] - reverse direction of scroll
-     * @param {boolean} [options.noDecelerate] - don't hand off to the decelerate plugin when scrolling stops
-     * @param {boolean} [options.linear] - if using radius, scroll along the eight compass directions instead of
-     *   directly toward the pointer
-     * @param {boolean} [options.allowButtons] - keep scrolling while a mouse button is pressed
+     * @param {IEdgeScrollOptions} [options] - options, see {@link IEdgeScrollOptions}
      * @returns {Viewport} this
      */
     public edgeScroll(options?: IEdgeScrollOptions): Viewport

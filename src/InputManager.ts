@@ -2,6 +2,7 @@ import { FederatedPointerEvent, FederatedWheelEvent, Point, PointData, Rectangle
 
 import type { Viewport } from './Viewport.js';
 
+/** @category Advanced */
 export interface IViewportTouch
 {
     id: number;

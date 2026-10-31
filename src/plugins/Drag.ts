@@ -5,7 +5,11 @@ import type { FederatedPointerEvent, PointData } from 'pixi.js';
 import type { Viewport } from '../Viewport.js';
 import type { Decelerate } from './Decelerate.js';
 
-/** Options for {@link Drag}. */
+/**
+ * Options for {@link Drag}.
+ *
+ * @category Plugin options
+ */
 export interface IDragOptions
 {
     /**
@@ -133,6 +137,8 @@ const DEFAULT_DRAG_OPTIONS: Required<IDragOptions> = {
  * Plugin to enable panning/dragging of the viewport to move around.
  *
  * @public
+ *
+ * @category Plugins
  */
 export class Drag extends Plugin
 {

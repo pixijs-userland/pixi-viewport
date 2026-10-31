@@ -6,6 +6,8 @@ import type { Viewport } from '../Viewport.js';
  * Options for {@link ClampZoom}.
  *
  * Use either minimum width/height or minimum scale
+ *
+ * @category Plugin options
  */
 export interface IClampZoomOptions
 {
@@ -50,6 +52,8 @@ const DEFAULT_CLAMP_ZOOM_OPTIONS: Required<IClampZoomOptions> = {
  * Plugin to clamp the viewport's zoom to a specific range.
  *
  * @public
+ *
+ * @category Plugins
  */
 export class ClampZoom extends Plugin
 {
@@ -200,7 +204,11 @@ export class ClampZoom extends Plugin
     }
 }
 
-/** This allows independent x and y values for min/maxScale */
+/**
+ * This allows independent x and y values for min/maxScale
+ *
+ * @category Plugin options
+ */
 export interface IScale
 {
     x: null | number

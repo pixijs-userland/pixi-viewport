@@ -3,7 +3,11 @@ import { Plugin } from './Plugin.js';
 
 import type { Viewport } from '../Viewport.js';
 
-/** Options for {@link Wheel}. */
+/**
+ * Options for {@link Wheel}.
+ *
+ * @category Plugin options
+ */
 export interface IWheelOptions
 {
     /**
@@ -118,6 +122,8 @@ const DEFAULT_WHEEL_OPTIONS: Required<IWheelOptions> = {
  * Plugin for handling wheel scrolling for viewport zoom.
  *
  * @event wheel-start({event, viewport})
+ *
+ * @category Plugins
  */
 export class Wheel extends Plugin
 {

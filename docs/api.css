@@ -1,0 +1,13 @@
+/* Small additions to typedoc-github-theme for the API docs */
+
+/* readable tables (the events table on Viewport and the plugin table on the landing page) */
+.tsd-typography table {
+    border-collapse: collapse;
+    font-size: 0.95em;
+}
+
+.tsd-typography th,
+.tsd-typography td {
+    padding: 6px 10px;
+    border: 1px solid var(--color-background-active, rgba(127, 127, 127, 0.25));
+}
