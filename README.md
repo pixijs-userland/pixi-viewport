@@ -30,16 +30,17 @@ New:
 - `wheel({ trackpadPinch: true, trackpadPinchSpeed: 2.5 })` speeds up trackpad pinch zooming without changing mouse wheel zooming. The default (`1`) keeps the current speed, which is slow for a pinch.
 - `new Viewport({ ignoreWheelFromOtherElements: true })` ignores wheel events that bubble up from other elements, such as HTML overlays.
 - A pixi object inside the viewport can call `stopPropagation()` on its `wheel` event to keep the viewport from zooming. With `passiveWheel: false`, the page doesn't scroll either.
+- `getVisibleBounds()` takes an optional `Rectangle` to write into, and the default hit area no longer allocates a new one every frame.
 - The event types (`DragEvent`, `MovedEvent`, `ZoomedEvent`, and others) are exported.
 - A new demo site: a playground with presets and a live code panel, plus examples for embedding a viewport in a scrolling page and for overlays. The API docs are generated with TypeDoc.
 
 Fixed:
 
 - Clamp now stops deceleration at the edge (no more jitter), and re-clamps when only the screen size changes.
-- `follow()` works with targets nested in other containers, and `acceleration` no longer exceeds `speed`.
+- `follow()` works with targets nested in other containers, `acceleration` no longer exceeds `speed`, and following a target that gets destroyed stops instead of throwing every frame.
 - Animate's `removeOnInterrupt` also stops on wheel events.
 - Negative scale (e.g., a y-axis pointing up) no longer breaks input.
-- `mouse-edge-start` and `mouse-edge-end` events are emitted.
+- `mouse-edge-start` and `mouse-edge-end` events are emitted, including `mouse-edge-end` when the plugin is paused or removed while scrolling.
 - `snapZoom({ time: 0 })` no longer throws.
 - Touches whose `pointerup` never arrived (e.g., iOS suspending the page) are cleared when a new gesture starts.
 - Type declarations use `.js` import extensions (works with `moduleResolution: NodeNext`) and include JSDoc comments.
@@ -191,7 +192,7 @@ This project uses [pnpm](https://pnpm.io/) (the version is pinned in `package.js
 2. pnpm install
 3. pnpm dev
 4. open browser to http://localhost:5173 (the playground; the example pages are linked from its header)
-5. pnpm docs (builds the demo site and API docs into docs/dist; `pnpm docs:serve` to preview)
+5. pnpm run docs (builds the demo site and API docs into docs/dist; `pnpm docs:serve` to preview)
 
 PRs are more than welcome!
 
