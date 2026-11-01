@@ -1,63 +1,44 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/ascetic.min.css">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            height: 200vh;
-        }
-
-        .titleCode {
-            margin-top: 0.5em;
-            margin-left: 15%;
-            font-size: 2em;
-        }
-
-        #code {
-            left: 15%;
-            width: 80%;
-            position: absolute;
-            word-wrap: break-word;
-            z-index: -1;
-        }
-
-        .hljs {
-            display: block;
-            overflow-x: auto;
-            padding: 0.5em;
-            background: rgba(0, 0, 100, 0.02);
-        }
-
-        .hljs-comment {
-            color: blue;
-        }
-
-        .font {
-            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-            font-size: 1.25em;
-        }
-
-        .github-fork-ribbon.right-top:before {
-            background-color: blue;
-        }
-
-        #canvas {
-            position: absolute;
-            top: 4em;
-            width: 100%;
-            height: calc(100% - 4em);
-        }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"/>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.5/dat.gui.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>pixi-viewport playground</title>
+    <meta name="description" content="Try every pixi-viewport plugin: drag, pinch, wheel zoom, decelerate, clamp, bounce, edge scrolling, follow, snap, and animate.">
+    <script>
+        // apply the saved theme before the page renders (shared with the API docs)
+        try { document.documentElement.dataset.theme = localStorage.getItem('tsd-theme') || 'os'; }
+        catch { document.documentElement.dataset.theme = 'os'; }
+    </script>
 </head>
-
 <body>
-    <div class="titleCode">Example for <a href="https://github.com/davidfig/pixi-viewport.git/">github.com/davidfig/pixi-viewport/</a></div>
-    <div id="test"></div>
-    <pre><code class="javascript" id="code"></code></pre>
-    <a class="github-fork-ribbon right-top" href="https://github.com/davidfig/pixi-viewport/" title="Fork me on GitHub">Fork me on GitHub</a>
-    <script type="module" src="./src/code.js"></script>
+    <header class="site-header">
+        <a class="brand" href="./">pixi-viewport <span class="version" data-version></span></a>
+        <nav aria-label="Site">
+            <a href="./" aria-current="page">Playground</a>
+            <a href="./examples/scrolling-page.html">In a scrolling page</a>
+            <a href="./examples/overlays.html">Overlays</a>
+            <a href="./api/">API</a>
+            <a href="https://github.com/pixijs-userland/pixi-viewport">GitHub</a>
+        </nav>
+        <button class="theme-toggle" type="button" aria-label="Theme"></button>
+    </header>
+
+    <main class="stage" aria-label="Interactive viewport demo"></main>
+
+    <div class="panel hud" aria-live="off"></div>
+    <div class="panel hint" role="status"></div>
+
+    <details class="panel code-panel" open>
+        <summary>Code for this setup <button class="copy-button" type="button">Copy</button></summary>
+        <pre><code></code></pre>
+    </details>
+
+    <details class="panel event-panel" open>
+        <summary>Events</summary>
+        <ol></ol>
+    </details>
+
+    <script type="module" src="./src/playground/main.ts"></script>
 </body>
+</html>

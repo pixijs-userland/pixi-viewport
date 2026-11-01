@@ -1,10 +1,14 @@
 import { Point, PointData } from 'pixi.js';
-import ease from '../ease';
-import { Plugin } from './Plugin';
+import ease from '../ease.js';
+import { Plugin } from './Plugin.js';
 
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
-/** Options for {@link Animate}. */
+/**
+ * Options for {@link Animate}.
+ *
+ * @category Plugin options
+ */
 export interface IAnimateOptions
 {
     /** Time to animate */
@@ -57,6 +61,8 @@ const DEFAULT_ANIMATE_OPTIONS = {
  *
  * @see Viewport#animate
  * @fires animate-end
+ *
+ * @category Plugins
  */
 export class Animate extends Plugin
 {
@@ -186,6 +192,16 @@ export class Animate extends Plugin
             this.startHeight = this.parent.screenHeightInWorldPixels;
             this.deltaHeight = this.height - this.startHeight;
         }
+    }
+
+    public wheel(): boolean
+    {
+        if (this.options.removeOnInterrupt)
+        {
+            this.parent.plugins.remove('animate');
+        }
+
+        return false;
     }
 
     public down(): boolean

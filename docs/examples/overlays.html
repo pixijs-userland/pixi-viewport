@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>pixi-viewport with overlays</title>
+    <meta name="description" content="Keep scrollable HTML panels and pixi objects from zooming the viewport underneath them.">
+    <script>
+        // apply the saved theme before the page renders (shared with the API docs)
+        try { document.documentElement.dataset.theme = localStorage.getItem('tsd-theme') || 'os'; }
+        catch { document.documentElement.dataset.theme = 'os'; }
+    </script>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="../">pixi-viewport <span class="version" data-version></span></a>
+        <nav aria-label="Site">
+            <a href="../">Playground</a>
+            <a href="./scrolling-page.html">In a scrolling page</a>
+            <a href="./overlays.html" aria-current="page">Overlays</a>
+            <a href="../api/">API</a>
+            <a href="https://github.com/pixijs-userland/pixi-viewport">GitHub</a>
+        </nav>
+        <button class="theme-toggle" type="button" aria-label="Theme"></button>
+    </header>
+
+    <main class="page">
+        <h1>Overlays and nested scrolling</h1>
+        <p class="lede">
+            Apps put scrollable things on top of the viewport: HTML panels, and lists drawn in pixi itself. Scrolling
+            one of those shouldn't zoom the map underneath.
+        </p>
+
+        <figure>
+            <div class="demo" id="demo" aria-label="Map with a pixi list and an HTML panel on top">
+                <aside class="overlay-card" aria-label="HTML panel">
+                    <h3>HTML panel</h3>
+                    <p>Scroll this panel with the wheel. The map stays put.</p>
+                    <ul id="html-list"></ul>
+                </aside>
+            </div>
+            <div class="options">
+                <label><input type="checkbox" id="stop" checked> pixi list calls <code>stopPropagation()</code></label>
+            </div>
+            <figcaption>
+                The list on the left is drawn in pixi, inside the viewport. Scroll it, then turn the option off and
+                scroll it again: the map zooms too.
+            </figcaption>
+        </figure>
+
+        <h2>A list drawn in pixi</h2>
+        <p>
+            A pixi object inside the viewport receives the <code>wheel</code> event first. Calling
+            <code>stopPropagation()</code> on it keeps the viewport from zooming (new in v7).
+        </p>
+        <pre><code id="pixi-code"></code></pre>
+
+        <h2>An HTML panel</h2>
+        <p>
+            An HTML element that sits <em>next to</em> the canvas, like the panel above, never sends its wheel events
+            to the viewport. That's the simplest setup: put overlays beside the canvas, not inside the element pixi
+            listens on.
+        </p>
+        <p>
+            If your overlays have to live inside the element pixi listens on (for example, you called
+            <code>app.renderer.events.setTargetElement(wrapper)</code> on a wrapper around the canvas and your
+            panels), the viewport sees their wheel events too. Turn on <code>ignoreWheelFromOtherElements</code> so it
+            only handles wheel events aimed at the canvas:
+        </p>
+        <pre><code id="html-code"></code></pre>
+    </main>
+
+    <script type="module" src="../src/examples/overlays.ts"></script>
+</body>
+</html>

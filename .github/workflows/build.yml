@@ -10,13 +10,19 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
-          node-version: '16'
+          node-version: '24'
+          cache: 'pnpm'
       - name: ⏬ Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: ✨ Lint
-        run: yarn lint
+        run: pnpm run lint
+      - name: 🔎 Typecheck
+        run: pnpm run typecheck
+      - name: 🧪 Test
+        run: pnpm run test
       - name: 🦾 Build Lib
-        run: yarn build
+        run: pnpm run build

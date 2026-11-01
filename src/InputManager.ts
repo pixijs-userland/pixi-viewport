@@ -1,7 +1,8 @@
-import { FederatedPointerEvent, Point, PointData, Rectangle } from 'pixi.js';
+import { FederatedPointerEvent, FederatedWheelEvent, Point, PointData, Rectangle } from 'pixi.js';
 
-import type { Viewport } from './Viewport';
+import type { Viewport } from './Viewport.js';
 
+/** @category Advanced */
 export interface IViewportTouch
 {
     id: number;
@@ -23,6 +24,10 @@ export class InputManager
     public isMouseDown?: boolean;
     public last?: Point | null;
     public wheelFunction?: (e: WheelEvent) => void;
+    /** Last native wheel event that pixi dispatched down through the viewport (capture phase) */
+    private wheelCaptured?: WheelEvent;
+    /** Last native wheel event that bubbled back up to the viewport */
+    private wheelBubbled?: WheelEvent;
     /** List of active touches on viewport */
     public touches: IViewportTouch[];
 
@@ -61,6 +66,11 @@ export class InputManager
             this.viewport.on('pointerleave', this.up, this);
         }
 
+        // pixi dispatches its federated wheel event before our DOM listener runs, so we can tell
+        // whether a child of the viewport called stopPropagation() on it
+        this.viewport.on('wheelcapture', this.wheelCapture, this);
+        this.viewport.on('wheel', this.wheelBubble, this);
+
         this.wheelFunction = (e) => this.handleWheel(e);
         this.viewport.options.events.domElement.addEventListener(
             'wheel',
@@ -76,6 +86,18 @@ export class InputManager
     public destroy(): void
     {
         this.viewport.options.events.domElement?.removeEventListener('wheel', this.wheelFunction as any);
+        this.viewport.off('wheelcapture', this.wheelCapture, this);
+        this.viewport.off('wheel', this.wheelBubble, this);
+    }
+
+    private wheelCapture(event: FederatedWheelEvent): void
+    {
+        this.wheelCaptured = event.nativeEvent as WheelEvent;
+    }
+
+    private wheelBubble(event: FederatedWheelEvent): void
+    {
+        this.wheelBubbled = event.nativeEvent as WheelEvent;
     }
 
     /**
@@ -93,9 +115,18 @@ export class InputManager
         {
             this.isMouseDown = true;
         }
-        else if (!this.get(event.pointerId))
+        else
         {
-            this.touches.push({ id: event.pointerId, last: null });
+            // a primary pointer starts a new gesture, so drop touches whose pointerup never arrived
+            // (e.g., iOS suspending the page mid-touch)
+            if (event.isPrimary)
+            {
+                this.touches = [];
+            }
+            if (!this.get(event.pointerId))
+            {
+                this.touches.push({ id: event.pointerId, last: null });
+            }
         }
         if (this.count() === 1)
         {
@@ -231,13 +262,47 @@ export class InputManager
             return;
         }
 
+        // our 'wheel' listener can be removed by app code (e.g., viewport.off('wheel')); if it was, add it back and
+        // skip the check for this event, since it can't tell whether a child stopped it
+        const listening = this.viewport.listeners('wheel').includes(this.wheelBubble);
+
+        if (!listening)
+        {
+            this.viewport.on('wheel', this.wheelBubble, this);
+        }
+
+        // a child of the viewport stopped propagation of pixi's wheel event before it reached the viewport
+        if (listening && this.wheelCaptured === event && this.wheelBubbled !== event)
+        {
+            // the child used the wheel, so the page shouldn't scroll either (pixi's own wheel listener is passive,
+            // so the child can't prevent it)
+            if (!this.viewport.options.passiveWheel)
+            {
+                event.preventDefault();
+            }
+
+            return;
+        }
+
+        // optionally ignore wheel events bubbling up from other elements (e.g., an HTML modal over the canvas)
+        if (this.viewport.options.ignoreWheelFromOtherElements)
+        {
+            const { domElement, renderer } = this.viewport.options.events;
+
+            if (event.target !== domElement && event.target !== renderer?.canvas)
+            {
+                return;
+            }
+        }
+
         // only handle wheel events where the mouse is over the viewport
         const point = this.viewport.toLocal(this.getPointerPosition(event));
+        const bounds = this.viewport.getVisibleBounds();
 
-        if (this.viewport.left <= point.x
-            && point.x <= this.viewport.right
-            && this.viewport.top <= point.y
-            && point.y <= this.viewport.bottom)
+        if (bounds.left <= point.x
+            && point.x <= bounds.right
+            && bounds.top <= point.y
+            && point.y <= bounds.bottom)
         {
             const stop = this.viewport.plugins.wheel(event);
 

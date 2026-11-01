@@ -1,8 +1,9 @@
-import { MovedEvent } from '../types';
-import { Plugin } from './Plugin';
+import { MovedEvent } from '../types.js';
+import { Plugin } from './Plugin.js';
 
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
+/** @category Plugin options */
 export interface IDecelerateOptions
 {
     /**
@@ -27,7 +28,11 @@ export interface IDecelerateOptions
     minSpeed?: number;
 }
 
-/** Viewport position snapshot that's saved by {@link DeceleratePlugin} to estimate panning velocity. */
+/**
+ * Viewport position snapshot that's saved by {@link Decelerate} to estimate panning velocity.
+ *
+ * @category Advanced
+ */
 export interface IDecelerateSnapshot
 {
     /** x-coordinate of the viewport. */
@@ -58,6 +63,8 @@ const TP = 16;
  * Plugin to decelerate viewport velocity smoothly after panning ends.
  *
  * @public
+ *
+ * @category Plugins
  */
 export class Decelerate extends Plugin
 {
@@ -110,7 +117,12 @@ export class Decelerate extends Plugin
         this.timeSinceRelease = 0;
 
         this.reset();
-        this.parent.on('moved', (data) => this.handleMoved(data));
+        this.parent.on('moved', this.handleMoved, this);
+    }
+
+    public override destroy(): void
+    {
+        this.parent.off('moved', this.handleMoved, this);
     }
 
     public down(): boolean

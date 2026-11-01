@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>pixi-viewport in a scrolling page</title>
+    <meta name="description" content="Embed a pixi-viewport canvas in a normal page without trapping scrolling on desktop or mobile.">
+    <script>
+        // apply the saved theme before the page renders (shared with the API docs)
+        try { document.documentElement.dataset.theme = localStorage.getItem('tsd-theme') || 'os'; }
+        catch { document.documentElement.dataset.theme = 'os'; }
+    </script>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="../">pixi-viewport <span class="version" data-version></span></a>
+        <nav aria-label="Site">
+            <a href="../">Playground</a>
+            <a href="./scrolling-page.html" aria-current="page">In a scrolling page</a>
+            <a href="./overlays.html">Overlays</a>
+            <a href="../api/">API</a>
+            <a href="https://github.com/pixijs-userland/pixi-viewport">GitHub</a>
+        </nav>
+        <button class="theme-toggle" type="button" aria-label="Theme"></button>
+    </header>
+
+    <main class="page">
+        <h1>A viewport in a scrolling page</h1>
+        <p class="lede">
+            When a canvas sits in the middle of an article, it shouldn't trap the reader. Scrolling past it with a
+            mouse wheel or a finger should scroll the page, and zooming should still work when the reader means it.
+        </p>
+
+        <p>
+            Scroll down past the map below. With the default settings, the wheel and one-finger drags would be taken
+            by the viewport. These options leave them to the page:
+        </p>
+        <ul>
+            <li><code>wheel({ wheelZoom: false, trackpadPinch: true, trackpadPinchSpeed: 2.5 })</code>: a plain
+                wheel scrolls the page; a trackpad pinch (or <kbd>Ctrl</kbd> + wheel) zooms the map.
+                <code>trackpadPinchSpeed</code> makes the pinch feel like a map app's.</li>
+            <li><code>drag({ wheel: false, disableOneFingerDrag: true })</code>: one finger scrolls the page on
+                phones; two fingers pan and pinch the map. A mouse still drags.</li>
+        </ul>
+
+        <figure>
+            <div class="demo" id="demo" aria-label="Embedded map you can pan and zoom"></div>
+            <div class="options">
+                <label><input type="checkbox" id="page-wheel" checked> Wheel scrolls the page</label>
+                <label><input type="checkbox" id="one-finger" checked> One finger scrolls the page</label>
+            </div>
+            <figcaption>Turn an option off to feel the difference: the map starts capturing that input.</figcaption>
+        </figure>
+
+        <pre><code id="code"></code></pre>
+
+        <h2>Why both settings matter</h2>
+        <p>
+            Desktop and mobile trap scrolling in different ways. On a desktop, the viewport listens for wheel events
+            to zoom, so the page stops scrolling whenever the pointer passes over the canvas. On a phone, the drag
+            plugin takes every one-finger touch, so a reader who starts a swipe on the map can't get past it.
+        </p>
+        <p>
+            The canvas also has to let the browser handle vertical swipes. pixi sets
+            <code>touch-action: none</code> on its canvas, so set <code>app.canvas.style.touchAction = 'pan-y'</code>
+            after creating the app. Leave out <code>pinch-zoom</code> so a pinch zooms the map, not the page.
+        </p>
+        <p>
+            Keep scrolling to check that the page moves normally even with the pointer or a finger over the map.
+            This paragraph is here to give the page some length.
+        </p>
+        <p style="height: 60vh"></p>
+        <p>That's the end of the page.</p>
+    </main>
+
+    <script type="module" src="../src/examples/scrolling-page.ts"></script>
+</body>
+</html>

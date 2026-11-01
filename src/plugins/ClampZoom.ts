@@ -1,11 +1,13 @@
-import { Plugin } from './Plugin';
+import { Plugin } from './Plugin.js';
 
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
 /**
  * Options for {@link ClampZoom}.
  *
  * Use either minimum width/height or minimum scale
+ *
+ * @category Plugin options
  */
 export interface IClampZoomOptions
 {
@@ -26,6 +28,14 @@ export interface IClampZoomOptions
 
     /** Maximum scale */
     maxScale?: number | null | IScale;
+
+    /**
+     * When clamping by width or height, scale the other axis by the same amount.
+     * Set to false when zooming along a single axis (e.g., `wheel({ axis: 'x' })`).
+     *
+     * @default true
+     */
+    keepAspectRatio?: boolean;
 }
 
 const DEFAULT_CLAMP_ZOOM_OPTIONS: Required<IClampZoomOptions> = {
@@ -34,13 +44,16 @@ const DEFAULT_CLAMP_ZOOM_OPTIONS: Required<IClampZoomOptions> = {
     maxWidth: null,
     maxHeight: null,
     minScale: null,
-    maxScale: null
+    maxScale: null,
+    keepAspectRatio: true,
 };
 
 /**
  * Plugin to clamp the viewport's zoom to a specific range.
  *
  * @public
+ *
+ * @category Plugins
  */
 export class ClampZoom extends Plugin
 {
@@ -80,7 +93,10 @@ export class ClampZoom extends Plugin
                 const original = this.parent.scale.x;
 
                 this.parent.fitWidth(this.options.minWidth, false, false, true);
-                this.parent.scale.y *= this.parent.scale.x / original;
+                if (this.options.keepAspectRatio)
+                {
+                    this.parent.scale.y *= this.parent.scale.x / original;
+                }
                 width = this.parent.worldScreenWidth;
                 height = this.parent.worldScreenHeight;
                 this.parent.emit('zoomed', { viewport: this.parent, type: 'clamp-zoom' });
@@ -90,7 +106,10 @@ export class ClampZoom extends Plugin
                 const original = this.parent.scale.x;
 
                 this.parent.fitWidth(this.options.maxWidth, false, false, true);
-                this.parent.scale.y *= this.parent.scale.x / original;
+                if (this.options.keepAspectRatio)
+                {
+                    this.parent.scale.y *= this.parent.scale.x / original;
+                }
                 width = this.parent.worldScreenWidth;
                 height = this.parent.worldScreenHeight;
                 this.parent.emit('zoomed', { viewport: this.parent, type: 'clamp-zoom' });
@@ -100,7 +119,10 @@ export class ClampZoom extends Plugin
                 const original = this.parent.scale.y;
 
                 this.parent.fitHeight(this.options.minHeight, false, false, true);
-                this.parent.scale.x *= this.parent.scale.y / original;
+                if (this.options.keepAspectRatio)
+                {
+                    this.parent.scale.x *= this.parent.scale.y / original;
+                }
                 width = this.parent.worldScreenWidth;
                 height = this.parent.worldScreenHeight;
                 this.parent.emit('zoomed', { viewport: this.parent, type: 'clamp-zoom' });
@@ -110,7 +132,10 @@ export class ClampZoom extends Plugin
                 const original = this.parent.scale.y;
 
                 this.parent.fitHeight(this.options.maxHeight, false, false, true);
-                this.parent.scale.x *= this.parent.scale.y / original;
+                if (this.options.keepAspectRatio)
+                {
+                    this.parent.scale.x *= this.parent.scale.y / original;
+                }
                 this.parent.emit('zoomed', { viewport: this.parent, type: 'clamp-zoom' });
             }
         }
@@ -179,7 +204,11 @@ export class ClampZoom extends Plugin
     }
 }
 
-/** This allows independent x and y values for min/maxScale */
+/**
+ * This allows independent x and y values for min/maxScale
+ *
+ * @category Plugin options
+ */
 export interface IScale
 {
     x: null | number

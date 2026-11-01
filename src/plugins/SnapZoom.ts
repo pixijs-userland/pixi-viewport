@@ -1,10 +1,14 @@
-import ease from '../ease';
-import { Plugin } from './Plugin';
+import ease from '../ease.js';
+import { Plugin } from './Plugin.js';
 
 import type { Point } from 'pixi.js';
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
-/** Options for {@link SnapZoom}. */
+/**
+ * Options for {@link SnapZoom}.
+ *
+ * @category Plugin options
+ */
 export interface ISnapZoomOptions
 {
     /** the desired width to snap (to maintain aspect ratio, choose only width or height) */
@@ -79,6 +83,8 @@ const DEFAULT_SNAP_ZOOM_OPTIONS: Required<ISnapZoomOptions> = {
  * @event snap-zoom-start(Viewport) emitted each time a fit animation starts
  * @event snap-zoom-end(Viewport) emitted each time fit reaches its target
  * @event snap-zoom-end(Viewport) emitted each time fit reaches its target
+ *
+ * @category Plugins
  */
 export class SnapZoom extends Plugin
 {
@@ -129,13 +135,7 @@ export class SnapZoom extends Plugin
 
         if (this.options.time === 0)
         {
-            // TODO: Fix this
-            // @ts-expect-error todo
-            parent.container.scale.x = this.xScale;
-
-            // TODO: Fix this
-            // @ts-expect-error todo
-            parent.container.scale.y = this.yScale;
+            parent.scale.set(this.xScale, this.yScale);
 
             if (this.options.removeOnComplete)
             {

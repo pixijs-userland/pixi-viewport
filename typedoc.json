@@ -1,0 +1,48 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "name": "pixi-viewport",
+    "entryPoints": [
+        "src/index.ts"
+    ],
+    "out": "docs/dist/api",
+    "tsconfig": "tsconfig.json",
+    "readme": "docs/api-index.md",
+    "excludeInternal": true,
+    "excludePrivate": true,
+    "excludeProtected": false,
+    "sort": [
+        "kind",
+        "instance-first",
+        "alphabetical-ignoring-documents"
+    ],
+    "navigationLinks": {
+        "Playground": "../",
+        "GitHub": "https://github.com/pixijs-userland/pixi-viewport"
+    },
+    "externalSymbolLinkMappings": {
+        "pixi.js": {
+            "*": "https://pixijs.download/release/docs/index.html"
+        }
+    },
+    "plugin": [
+        "typedoc-github-theme",
+        "typedoc-plugin-mdn-links",
+        "./docs/typedoc-hide-external-inherited.mjs"
+    ],
+    "customCss": "docs/api.css",
+    "navigation": {
+        "includeCategories": true,
+        "includeGroups": false
+    },
+    "categorizeByGroup": false,
+    "categoryOrder": [
+        "Viewport",
+        "Plugins",
+        "Plugin options",
+        "Events",
+        "Advanced",
+        "*"
+    ],
+    "lightHighlightTheme": "github-light-default",
+    "darkHighlightTheme": "github-dark-default"
+}

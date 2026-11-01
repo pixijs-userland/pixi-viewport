@@ -1,8 +1,9 @@
-import ease from '../ease';
-import { Plugin } from './Plugin';
+import ease from '../ease.js';
+import { Plugin } from './Plugin.js';
 
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
+/** @category Plugin options */
 export interface ISnapOptions
 {
     /** snap to the top-left of viewport instead of center */
@@ -68,6 +69,8 @@ const DEFAULT_SNAP_OPTIONS: Required<ISnapOptions> = {
  * @event snap-restart(Viewport) emitted each time a snap resets because of a change in viewport size
  * @event snap-end(Viewport) emitted each time snap reaches its target
  * @event snap-remove(Viewport) emitted if snap plugin is removed
+ *
+ * @category Plugins
  */
 export class Snap extends Plugin
 {

@@ -1,10 +1,12 @@
 import type { FederatedEvent } from 'pixi.js';
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
 /**
  * Derive this class to create user-defined plugins
  *
  * @public
+ *
+ * @category Plugins
  */
 export class Plugin
 {
@@ -58,9 +60,9 @@ export class Plugin
 
     /**
      * Called on each tick
-     * @param {number} elapsed time in millisecond since last update
+     * @param {number} _elapsed time in milliseconds since last update
      */
-    public update(_delta: number): void
+    public update(_elapsed: number): void
     {
         // Override for implementation
     }

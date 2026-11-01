@@ -6,6 +6,7 @@ import type {
     ClampZoom,
     Decelerate,
     Drag,
+    EdgeScroll,
     Follow,
     MouseEdges,
     Pinch,
@@ -13,8 +14,8 @@ import type {
     Snap,
     SnapZoom,
     Wheel,
-} from './plugins';
-import type { Viewport } from './Viewport';
+} from './plugins/index.js';
+import type { Viewport } from './Viewport.js';
 
 const PLUGIN_ORDER = [
     'drag',
@@ -22,6 +23,7 @@ const PLUGIN_ORDER = [
     'wheel',
     'follow',
     'mouse-edges',
+    'edge-scroll',
     'decelerate',
     'animate',
     'bounce',
@@ -35,6 +37,8 @@ const PLUGIN_ORDER = [
  * Use this to access current plugins or add user-defined plugins
  *
  * @public
+ *
+ * @category Viewport
  */
 export class PluginManager
 {
@@ -51,24 +55,29 @@ export class PluginManager
     /** The viewport using the plugins managed by `this`. */
     public readonly viewport: Viewport;
 
+    /** Order in which this viewport runs its plugins (each viewport keeps its own copy) */
+    private readonly order: string[];
+
     /** This is called by {@link Viewport} to initialize the {@link Viewport.plugins plugins}. */
     constructor(viewport: Viewport)
     {
         this.viewport = viewport;
         this.list = [];
         this.plugins = {};
+        this.order = [...PLUGIN_ORDER];
     }
 
     /**
      * Inserts a named plugin or a user plugin into the viewport
-     * default plugin order: 'drag', 'pinch', 'wheel', 'follow', 'mouse-edges', 'decelerate', 'bounce',
+     * default plugin order: 'drag', 'pinch', 'wheel', 'follow', 'mouse-edges', 'edge-scroll', 'decelerate', 'bounce',
      * 'snap-zoom', 'clamp-zoom', 'snap', 'clamp'
      *
      * @param {string} name of plugin
      * @param {Plugin} plugin - instantiated Plugin class
-     * @param {number} index to insert userPlugin (otherwise inserts it at the end)
+     * @param {number} [index] position in the plugin order (built-in plugins keep their default position and user
+     *   plugins are added at the end if not provided)
      */
-    public add(name: string, plugin: Plugin, index: number = PLUGIN_ORDER.length)
+    public add(name: string, plugin: Plugin, index?: number)
     {
         const oldPlugin = this.plugins[name];
 
@@ -79,14 +88,21 @@ export class PluginManager
 
         this.plugins[name] = plugin;
 
-        const current = PLUGIN_ORDER.indexOf(name);
+        const current = this.order.indexOf(name);
 
-        if (current !== -1)
+        if (typeof index === 'number')
         {
-            PLUGIN_ORDER.splice(current, 1);
+            if (current !== -1)
+            {
+                this.order.splice(current, 1);
+            }
+            this.order.splice(index, 0, name);
+        }
+        else if (current === -1)
+        {
+            this.order.push(name);
         }
 
-        PLUGIN_ORDER.splice(index, 0, name);
         this.sort();
     }
 
@@ -98,6 +114,7 @@ export class PluginManager
     public get(name: 'drag', ignorePaused?: boolean): Drag | undefined | null;
     public get(name: 'follow', ignorePaused?: boolean): Follow | undefined | null;
     public get(name: 'mouse-edges', ignorePaused?: boolean): MouseEdges | undefined | null;
+    public get(name: 'edge-scroll', ignorePaused?: boolean): EdgeScroll | undefined | null;
     public get(name: 'pinch', ignorePaused?: boolean): Pinch | undefined | null;
     public get(name: 'snap', ignorePaused?: boolean): Snap | undefined | null;
     public get(name: 'snap-zoom', ignorePaused?: boolean): SnapZoom | undefined | null;
@@ -218,7 +235,7 @@ export class PluginManager
     {
         this.list = [];
 
-        for (const plugin of PLUGIN_ORDER)
+        for (const plugin of this.order)
         {
             if (this.plugins[plugin])
             {

@@ -1,9 +1,13 @@
-import { Plugin } from './Plugin';
+import { Plugin } from './Plugin.js';
 
 import type { FederatedPointerEvent } from 'pixi.js';
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
-/** Insets for mouse edges scrolling regions */
+/**
+ * Insets for mouse edges scrolling regions
+ *
+ * @category Plugin options
+ */
 export interface IMouseEdgesInsets
 {
     /** Distance from center of screen in screen pixels */
@@ -25,10 +29,24 @@ export interface IMouseEdgesInsets
     right?: number | null;
 }
 
-/** Options for {@link MouseEdges}. */
+/**
+ * Options for {@link MouseEdges}.
+ *
+ * @deprecated use {@link IEdgeScrollOptions} with `viewport.edgeScroll()` instead
+ *
+ * @category Plugin options
+ */
 export interface IMouseEdgesOptions extends IMouseEdgesInsets
 {
-    /** Speed in pixels/frame to scroll viewport */
+    /**
+     * Controls how fast the viewport scrolls. This is not pixels per frame.
+     *
+     * Each update moves the viewport's center by `speed * speed * 0.06` world pixels, so scrolling grows with the
+     * square of `speed`: `4` → about 1, `8` (default) → about 3.8, `16` → about 15.4 world pixels per update.
+     * The amount is per update (not per millisecond), so it also depends on frame rate.
+     *
+     * @default 8
+     */
     speed?: number;
 
     /** Reverse direction of scroll */
@@ -65,8 +83,14 @@ const MOUSE_EDGES_OPTIONS: Required<IMouseEdgesOptions> = {
 /**
  * Scroll viewport when mouse hovers near one of the edges.
  *
+ * @deprecated use {@link EdgeScroll} (`viewport.edgeScroll()`) instead: its `speed` is in screen pixels per second,
+ * while this plugin's `speed` scrolls by speed * speed * 0.06 world pixels per frame. Kept unchanged for
+ * compatibility.
+ *
  * @event mouse-edge-start(Viewport) emitted when mouse-edge starts
  * @event mouse-edge-end(Viewport) emitted when mouse-edge ends
+ *
+ * @category Plugins
  */
 export class MouseEdges extends Plugin
 {
@@ -94,6 +118,9 @@ export class MouseEdges extends Plugin
     protected horizontal?: number | null;
 
     protected vertical?: number | null;
+
+    /** Whether the viewport is currently scrolling because of mouse-edges (used for start/end events) */
+    protected scrolling = false;
 
     /**
      * This is called by {@link Viewport.mouseEdges}.
@@ -264,6 +291,28 @@ export class MouseEdges extends Plugin
         return false;
     }
 
+    public override pause(): void
+    {
+        this.end();
+        super.pause();
+    }
+
+    public override destroy(): void
+    {
+        this.end();
+    }
+
+    /** Stops scrolling and emits mouse-edge-end if it was scrolling */
+    protected end(): void
+    {
+        this.horizontal = this.vertical = null;
+        if (this.scrolling)
+        {
+            this.scrolling = false;
+            this.parent.emit('mouse-edge-end', this.parent);
+        }
+    }
+
     public update(): void
     {
         if (this.paused)
@@ -271,7 +320,15 @@ export class MouseEdges extends Plugin
             return;
         }
 
-        if (this.horizontal || this.vertical)
+        const scrolling = !!(this.horizontal || this.vertical);
+
+        if (scrolling !== this.scrolling)
+        {
+            this.scrolling = scrolling;
+            this.parent.emit(scrolling ? 'mouse-edge-start' : 'mouse-edge-end', this.parent);
+        }
+
+        if (scrolling)
         {
             const center = this.parent.center;
 

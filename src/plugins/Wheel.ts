@@ -1,13 +1,29 @@
 import { Point, PointData } from 'pixi.js';
-import { Plugin } from './Plugin';
+import { Plugin } from './Plugin.js';
 
-import type { Viewport } from '../Viewport';
+import type { Viewport } from '../Viewport.js';
 
-/** Options for {@link Wheel}. */
+/**
+ * Options for {@link Wheel}.
+ *
+ * @category Plugin options
+ */
 export interface IWheelOptions
 {
     /**
-   * Percent to scroll with each spin
+   * Adjusts the zoom speed. Despite its name, this is not the percent zoomed per spin.
+   *
+   * Each wheel event multiplies the scale by `2 ^ ((1 + percent) * -deltaY / 500)`
+   * (or `2 ^ ((1 + percent) * trackpadPinchSpeed * -deltaY / 200)` for a trackpad pinch with `trackpadPinch` on).
+   * For a typical mouse wheel notch (deltaY = 100) this zooms by about:
+   * - `-0.5` → 7%
+   * - `0` → 15%
+   * - `0.1` (default) → 16.5%
+   * - `0.5` → 23%
+   * - `1` → 32%
+   *
+   * Use a negative value to zoom slower than the default. `-1` stops zooming and values below `-1` reverse it.
+   * deltaY varies by browser, OS, and device, so the actual amount per notch varies too.
    *
    * @default 0.1
    */
@@ -56,7 +72,7 @@ export interface IWheelOptions
     axis?: 'all' | 'x' | 'y';
 
     /**
-   * Array containing {@link key|https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code} codes of
+   * Array containing [KeyboardEvent.code](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code) values of
    * keys that can be pressed for the zoom to be triggered, e.g.: ['ShiftLeft', 'ShiftRight'}.
    *
    * @default null
@@ -64,9 +80,23 @@ export interface IWheelOptions
     keyToPress?: string[] | null;
 
     /**
-   * pinch the trackpad to zoom
+   * Pinch the trackpad to zoom. Browsers send a trackpad pinch as wheel events with `ctrlKey` set; with this on,
+   * those events zoom using `trackpadPinchSpeed` (and zoom even when `wheelZoom` is false).
+   *
+   * @default false
    */
     trackpadPinch?: boolean;
+
+    /**
+     * Multiplies the zoom speed of a trackpad pinch (only used when `trackpadPinch` is on). Unlike `percent`, it
+     * doesn't change mouse wheel zooming.
+     *
+     * A pinch arrives as many wheel events with small deltas (deltaY around 2 to 10). At `1`, an event with
+     * deltaY = 5 zooms by about 2%; at `2.5`, about 5%, which is close to how map apps feel.
+     *
+     * @default 1
+     */
+    trackpadPinchSpeed?: number;
 
     /**
    * zooms on wheel spin (use this as an alternative to drag.options.wheel)
@@ -84,6 +114,7 @@ const DEFAULT_WHEEL_OPTIONS: Required<IWheelOptions> = {
     axis: 'all',
     keyToPress: null,
     trackpadPinch: false,
+    trackpadPinchSpeed: 1,
     wheelZoom: true,
 };
 
@@ -91,6 +122,8 @@ const DEFAULT_WHEEL_OPTIONS: Required<IWheelOptions> = {
  * Plugin for handling wheel scrolling for viewport zoom.
  *
  * @event wheel-start({event, viewport})
+ *
+ * @category Plugins
  */
 export class Wheel extends Plugin
 {
@@ -102,6 +135,9 @@ export class Wheel extends Plugin
 
     /** Flags whether the keys required to zoom are pressed currently. */
     protected keyIsPressed: boolean;
+
+    private keydownHandler?: (e: KeyboardEvent) => void;
+    private keyupHandler?: (e: KeyboardEvent) => void;
 
     /**
    * This is called by {@link Viewport.wheel}.
@@ -126,21 +162,36 @@ export class Wheel extends Plugin
     protected handleKeyPresses(codes: string[]): void
     {
         if (typeof window === 'undefined') return;
-        window.addEventListener('keydown', (e) =>
+
+        this.keydownHandler = (e: KeyboardEvent) =>
         {
             if (codes.includes(e.code))
             {
                 this.keyIsPressed = true;
             }
-        });
-
-        window.addEventListener('keyup', (e) =>
+        };
+        this.keyupHandler = (e: KeyboardEvent) =>
         {
             if (codes.includes(e.code))
             {
                 this.keyIsPressed = false;
             }
-        });
+        };
+        window.addEventListener('keydown', this.keydownHandler);
+        window.addEventListener('keyup', this.keyupHandler);
+    }
+
+    public override destroy(): void
+    {
+        if (typeof window === 'undefined') return;
+        if (this.keydownHandler)
+        {
+            window.removeEventListener('keydown', this.keydownHandler);
+        }
+        if (this.keyupHandler)
+        {
+            window.removeEventListener('keyup', this.keyupHandler);
+        }
     }
 
     protected checkKeyPress(): boolean
@@ -234,7 +285,7 @@ export class Wheel extends Plugin
         const point = this.parent.input.getPointerPosition(e);
         const step
       = (-e.deltaY * (e.deltaMode ? this.options.lineHeight : 1)) / 200;
-        const change = Math.pow(2, (1 + this.options.percent) * step);
+        const change = Math.pow(2, (1 + this.options.percent) * this.options.trackpadPinchSpeed * step);
 
         let oldPoint: PointData | undefined;
 
@@ -292,7 +343,12 @@ export class Wheel extends Plugin
         {
             this.pinch(e);
         }
-        else if (this.options.wheelZoom)
+        else if (!this.options.wheelZoom)
+        {
+            // nothing to zoom, so let the page (or the drag plugin) use the wheel event
+            return false;
+        }
+        else
         {
             const point = this.parent.input.getPointerPosition(e);
             const sign = this.options.reverse ? -1 : 1;
