@@ -6,6 +6,14 @@
     "module": "./dist/pixi_viewport.js",
     "type": "module",
     "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/pixi_viewport.js",
+            "require": "./dist/pixi_viewport.umd.cjs"
+        },
+        "./package.json": "./package.json"
+    },
     "packageManager": "pnpm@12.16.1",
     "directories": {
         "doc": "docs"
