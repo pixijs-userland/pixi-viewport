@@ -12,6 +12,10 @@ If pixi-viewport is useful to you, you can [sponsor its development on GitHub](h
 
 Starting in October 2026, [Claude](https://www.anthropic.com/claude) (an AI model by Anthropic) assists with editing this code, including code review, bug fixes, and changes to documentation. A maintainer reviews every change before it is released. If you prefer not to use software developed with AI assistance, please take this into account when choosing whether to use pixi-viewport.
 
+## v7.0.1
+
+Fixes loading in Node (server-side rendering, Vitest and other test runners). `package.json` now has an `exports` map, so `import { Viewport } from 'pixi-viewport'` loads the ES module build and shares your copy of pixi.js. Before, Node loaded the UMD build, so that import threw `Named export 'Viewport' not found`. Deep imports such as `pixi-viewport/dist/types` keep working. Bundlers aren't affected.
+
 ## v7.0.0
 
 Tested with pixi.js v8.22. This release fixes many long-standing bugs. Some of those fixes change behavior that apps may rely on, so this is a major version.
