@@ -253,10 +253,8 @@ export class Wheel extends Plugin
             }
             else
             {
-                const targetParent = this.parent.parent || this.parent;
-
-                targetParent.toLocal(oldPoint as PointData, this.parent, oldPoint);
-                const comparePoint = targetParent.toLocal(point as PointData);
+                this.viewportToParent(oldPoint as PointData, oldPoint as PointData);
+                const comparePoint = this.globalToParent(point as PointData, new Point());
 
                 this.parent.x += comparePoint.x - (oldPoint as PointData).x;
                 this.parent.y += comparePoint.y - (oldPoint as PointData).y;
@@ -314,10 +312,8 @@ export class Wheel extends Plugin
         }
         else
         {
-            const targetParent = this.parent.parent || this.parent;
-
-            targetParent.toLocal(oldPoint as PointData, this.parent, oldPoint);
-            const comparePoint = targetParent.toLocal(point as PointData);
+            this.viewportToParent(oldPoint as PointData, oldPoint as PointData);
+            const comparePoint = this.globalToParent(point as PointData, new Point());
 
             this.parent.x += comparePoint.x - (oldPoint as PointData).x;
             this.parent.y += comparePoint.y - (oldPoint as PointData).y;
@@ -411,10 +407,8 @@ export class Wheel extends Plugin
                 }
                 else
                 {
-                    const targetParent = this.parent.parent || this.parent;
-
-                    targetParent.toLocal(oldPoint as PointData, this.parent, oldPoint);
-                    const comparePoint = targetParent.toLocal(point as PointData);
+                    this.viewportToParent(oldPoint as PointData, oldPoint as PointData);
+                    const comparePoint = this.globalToParent(point as PointData, new Point());
 
                     this.parent.x += comparePoint.x - (oldPoint as PointData).x;
                     this.parent.y += comparePoint.y - (oldPoint as PointData).y;

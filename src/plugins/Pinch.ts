@@ -105,11 +105,7 @@ export class Pinch extends Plugin
             return false;
         }
 
-        const { x, y } = (this.parent.parent || this.parent).toLocal(
-            e.global,
-            undefined,
-            SCRATCH_POINT
-        );
+        const { x, y } = this.globalToParent(e.global, SCRATCH_POINT);
 
         const pointers = this.parent.input.touches;
 
@@ -146,10 +142,7 @@ export class Pinch extends Plugin
 
                 if (!this.options.center)
                 {
-                    oldPoint = this.parent.toLocal(
-                        point,
-                        this.parent.parent || this.parent
-                    );
+                    oldPoint = this.parentToViewport(point, new Point());
                 }
                 let dist = Math.sqrt(
                     Math.pow(
@@ -196,10 +189,7 @@ export class Pinch extends Plugin
                 }
                 else
                 {
-                    const newPoint = (this.parent.parent || this.parent).toLocal(
-                        oldPoint as PointData,
-                        this.parent
-                    );
+                    const newPoint = this.viewportToParent(oldPoint as PointData, new Point());
 
                     this.parent.x += (point.x - newPoint.x) * this.options.factor;
                     this.parent.y += (point.y - newPoint.y) * this.options.factor;

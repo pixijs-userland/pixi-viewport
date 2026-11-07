@@ -1,4 +1,4 @@
-import type { FederatedEvent } from 'pixi.js';
+import type { FederatedEvent, PointData } from 'pixi.js';
 import type { Viewport } from '../Viewport.js';
 
 /**
@@ -26,6 +26,38 @@ export class Plugin
     {
         this.parent = parent;
         this.paused = false;
+    }
+
+    /**
+     * Converts a global point to the space the viewport moves in: its parent's, or global if it has no parent. A
+     * viewport can't measure in its own space, because that space changes as the viewport moves.
+     */
+    protected globalToParent<P extends PointData>(point: PointData, out: P): P
+    {
+        const parent = this.parent.parent;
+
+        if (parent)
+        {
+            return parent.toLocal(point, undefined, out);
+        }
+        out.x = point.x;
+        out.y = point.y;
+
+        return out;
+    }
+
+    /** Converts a point in the viewport's parent space (see globalToParent) to the viewport's local space */
+    protected parentToViewport<P extends PointData>(point: PointData, out: P): P
+    {
+        return this.parent.toLocal(point, this.parent.parent ?? undefined, out);
+    }
+
+    /** Converts a point in the viewport's local space to its parent space (see globalToParent) */
+    protected viewportToParent<P extends PointData>(point: PointData, out: P): P
+    {
+        const parent = this.parent.parent;
+
+        return parent ? parent.toLocal(point, this.parent, out) : this.parent.toGlobal(point, out);
     }
 
     /** Called when plugin is removed */
