@@ -361,12 +361,7 @@ export class Drag extends Plugin
         }
         if (this.checkButtons(event) && this.checkKeyPress(event))
         {
-            this.last = { x: event.global.x, y: event.global.y };
-            (this.parent.parent || this.parent).toLocal(
-                this.last,
-                undefined,
-                this.last,
-            );
+            this.last = this.globalToParent(event.global, { x: 0, y: 0 });
             this.current = event.pointerId;
 
             return true;
@@ -398,13 +393,7 @@ export class Drag extends Plugin
         || (count > 1 && !this.parent.plugins.get('pinch', true))
             )
             {
-                const newPoint = { x, y };
-
-                (this.parent.parent || this.parent).toLocal(
-                    newPoint,
-                    undefined,
-                    newPoint,
-                );
+                const newPoint = this.globalToParent(event.global, { x: 0, y: 0 });
 
                 const distX = newPoint.x - this.last.x;
                 const distY = newPoint.y - this.last.y;
