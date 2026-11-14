@@ -12,6 +12,10 @@ If pixi-viewport is useful to you, you can [sponsor its development on GitHub](h
 
 Starting in October 2026, [Claude](https://www.anthropic.com/claude) (an AI model by Anthropic) assists with editing this code, including code review, bug fixes, and changes to documentation. A maintainer reviews every change before it is released. If you prefer not to use software developed with AI assistance, please take this into account when choosing whether to use pixi-viewport.
 
+## v7.0.3
+
+Fixes `clamp()` with numeric bounds once the bounds fit on screen, for example after zooming out. The view jumped to center on `0..worldWidth` instead of on the bounds you passed, so content at negative coordinates couldn't be centered. Underflow (`center`, or an edge like `top-left`) now places the bounds you passed. `direction: 'all'`, `true` bounds and one-sided clamps behave as before.
+
 ## v7.0.2
 
 Fixes a viewport with no parent, such as one passed straight to `renderer.render(viewport)`. Dragging drifted away from the pointer, the wheel didn't zoom around the pointer, and pinching ran away to an enormous scale, because these measured in the viewport's own coordinates, which change as it moves.
