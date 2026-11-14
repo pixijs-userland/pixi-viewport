@@ -1,0 +1,7 @@
+# Moves vulnerable nested dev dependencies to fixed versions (dependabot can't update packages it doesn't depend on directly).
+# minimatch 10 (used by typedoc) is left alone: its fix is only in 11, which typedoc 0.28 doesn't support.
+overrides:
+  brace-expansion@<1.1.21: ^1.1.21
+  brace-expansion@>=2 <2.1.7: ^2.1.7
+  minimatch@<3.1.3: ^3.1.3
+  minimatch@>=9 <9.0.7: ^9.0.7
