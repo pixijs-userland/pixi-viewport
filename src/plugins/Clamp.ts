@@ -175,6 +175,24 @@ export class Clamp extends Plugin
         }
     }
 
+    /**
+     * The area that underflow fits on screen, along one axis: the numeric bounds when both sides are clamped,
+     * otherwise the world (0..worldWidth or 0..worldHeight).
+     */
+    protected underflowRange(
+        low: number | boolean | null,
+        high: number | boolean | null,
+        world: number,
+    ): { min: number; max: number }
+    {
+        if (low === null || high === null)
+        {
+            return { min: 0, max: world };
+        }
+
+        return { min: low === true ? 0 : (low as number), max: high === true ? world : (high as number) };
+    }
+
     public move(): boolean
     {
         this.update();
@@ -208,41 +226,29 @@ export class Clamp extends Plugin
         {
             let moved = false;
 
-            if (
-                !this.noUnderflow
-        && this.parent.screenWorldWidth < this.parent.screenWidth
-            )
+            const range = this.underflowRange(this.options.left, this.options.right, this.parent.worldWidth);
+            const rangeSize = (range.max - range.min) * this.parent.scale.x;
+
+            if (!this.noUnderflow && rangeSize < this.parent.screenWidth)
             {
+                // the clamped area fits on screen: place it by underflow
+                let target: number;
+
                 switch (this.underflowX)
                 {
                     case -1:
-                        if (this.parent.x !== 0)
-                        {
-                            this.parent.x = 0;
-                            moved = true;
-                        }
+                        target = 0 - (range.min * this.parent.scale.x);
                         break;
                     case 1:
-                        if (
-                            this.parent.x
-              !== this.parent.screenWidth - this.parent.screenWorldWidth
-                        )
-                        {
-                            this.parent.x
-                = this.parent.screenWidth - this.parent.screenWorldWidth;
-                            moved = true;
-                        }
+                        target = this.parent.screenWidth - (range.max * this.parent.scale.x);
                         break;
                     default:
-                        if (
-                            this.parent.x
-              !== (this.parent.screenWidth - this.parent.screenWorldWidth) / 2
-                        )
-                        {
-                            this.parent.x
-                = (this.parent.screenWidth - this.parent.screenWorldWidth) / 2;
-                            moved = true;
-                        }
+                        target = ((this.parent.screenWidth - rangeSize) / 2) - (range.min * this.parent.scale.x);
+                }
+                if (this.parent.x !== target)
+                {
+                    this.parent.x = target;
+                    moved = true;
                 }
             }
             else
@@ -294,41 +300,29 @@ export class Clamp extends Plugin
         {
             let moved = false;
 
-            if (
-                !this.noUnderflow
-        && this.parent.screenWorldHeight < this.parent.screenHeight
-            )
+            const range = this.underflowRange(this.options.top, this.options.bottom, this.parent.worldHeight);
+            const rangeSize = (range.max - range.min) * this.parent.scale.y;
+
+            if (!this.noUnderflow && rangeSize < this.parent.screenHeight)
             {
+                // the clamped area fits on screen: place it by underflow
+                let target: number;
+
                 switch (this.underflowY)
                 {
                     case -1:
-                        if (this.parent.y !== 0)
-                        {
-                            this.parent.y = 0;
-                            moved = true;
-                        }
+                        target = 0 - (range.min * this.parent.scale.y);
                         break;
                     case 1:
-                        if (
-                            this.parent.y
-              !== this.parent.screenHeight - this.parent.screenWorldHeight
-                        )
-                        {
-                            this.parent.y
-                = this.parent.screenHeight - this.parent.screenWorldHeight;
-                            moved = true;
-                        }
+                        target = this.parent.screenHeight - (range.max * this.parent.scale.y);
                         break;
                     default:
-                        if (
-                            this.parent.y
-              !== (this.parent.screenHeight - this.parent.screenWorldHeight) / 2
-                        )
-                        {
-                            this.parent.y
-                = (this.parent.screenHeight - this.parent.screenWorldHeight) / 2;
-                            moved = true;
-                        }
+                        target = ((this.parent.screenHeight - rangeSize) / 2) - (range.min * this.parent.scale.y);
+                }
+                if (this.parent.y !== target)
+                {
+                    this.parent.y = target;
+                    moved = true;
                 }
             }
             else

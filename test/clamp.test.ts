@@ -40,6 +40,80 @@ describe('Clamp', () =>
         expect(viewport.top).toBe(-500);
     });
 
+    describe('numeric bounds smaller than the screen (#495)', () =>
+    {
+        it('centers on the bounds, not on 0..worldWidth', () =>
+        {
+            // bounds of an object at -300..-100, -400..-200: smaller than the 800x600 screen
+            const { viewport } = createViewport({ worldWidth: 200, worldHeight: 200 });
+
+            viewport.clamp({ left: -300, right: -100, top: -400, bottom: -200 });
+            viewport.moveCenter(-200, -300);
+            frames(viewport);
+            expect(viewport.center.x).toBeCloseTo(-200);
+            expect(viewport.center.y).toBeCloseTo(-300);
+        });
+
+        it('centers on the bounds once zoomed out far enough that they fit', () =>
+        {
+            const { viewport } = createViewport();
+
+            viewport.clamp({ left: -1000, right: 1000, top: -1000, bottom: 1000 });
+            viewport.moveCenter(-200, -300);
+            frames(viewport);
+            // the bounds don't fit yet, so the view stays where it was put
+            expect(viewport.center.x).toBeCloseTo(-200);
+            expect(viewport.center.y).toBeCloseTo(-300);
+
+            viewport.setZoom(0.2, true);
+            frames(viewport);
+            // 2000 world pixels at 0.2 is 400px wide and tall: smaller than the screen, so it centers on the bounds
+            expect(viewport.center.x).toBeCloseTo(0);
+            expect(viewport.center.y).toBeCloseTo(0);
+        });
+
+        it('sticks to the requested edge with underflow', () =>
+        {
+            const { viewport } = createViewport();
+
+            viewport.clamp({ left: -300, right: -100, top: -400, bottom: -200, underflow: 'top-left' });
+            frames(viewport);
+            expect(viewport.left).toBeCloseTo(-300);
+            expect(viewport.top).toBeCloseTo(-400);
+
+            viewport.plugins.remove('clamp');
+            viewport.clamp({ left: -300, right: -100, top: -400, bottom: -200, underflow: 'bottom-right' });
+            frames(viewport);
+            expect(viewport.right).toBeCloseTo(-100);
+            expect(viewport.bottom).toBeCloseTo(-200);
+        });
+
+        it('still clamps normally when the bounds are larger than the screen', () =>
+        {
+            const { viewport } = createViewport();
+
+            viewport.clamp({ left: -1000, right: 1000, top: -1000, bottom: 1000 });
+            viewport.moveCorner(-5000, -5000);
+            frames(viewport);
+            expect(viewport.left).toBe(-1000);
+            expect(viewport.top).toBe(-1000);
+        });
+
+        it('keeps centering on the world for direction "all" and true bounds', () =>
+        {
+            for (const options of [{ direction: 'all' as const }, { left: true, right: true, top: true, bottom: true }])
+            {
+                const { viewport } = createViewport({ worldWidth: 400, worldHeight: 300 });
+
+                viewport.clamp(options);
+                viewport.moveCenter(-200, -300);
+                frames(viewport);
+                expect(viewport.x).toBe((SCREEN_WIDTH - 400) / 2);
+                expect(viewport.y).toBe((SCREEN_HEIGHT - 300) / 2);
+            }
+        });
+    });
+
     it('clamps to numeric boundaries', () =>
     {
         const { viewport } = createViewport();
