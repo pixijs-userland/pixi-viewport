@@ -1,4 +1,4 @@
-import { Container, DestroyOptions, EventSystem, IHitArea, Point, PointData, Rectangle, Ticker, View } from 'pixi.js';
+import { Container, ContainerOptions, DestroyOptions, EventSystem, IHitArea, Point, PointData, Rectangle, Ticker, View } from 'pixi.js';
 import { InputManager } from './InputManager.js';
 import { PluginManager } from './PluginManager.js';
 import {
@@ -99,6 +99,11 @@ export interface IViewportOptions
      * @default PIXI.Ticker.shared
      */
     ticker?: Ticker;
+
+    /**
+     * Options passed to the PIXI.Container
+     */
+    containerOptions?: ContainerOptions;
 }
 
 /** @category Advanced */
@@ -217,7 +222,7 @@ export class Viewport extends Container
      */
     constructor(options: IViewportOptions)
     {
-        super();
+        super(options.containerOptions);
         this.options = {
             ...DEFAULT_VIEWPORT_OPTIONS,
             ...options,
